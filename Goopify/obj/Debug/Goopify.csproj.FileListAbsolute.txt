@@ -1,0 +1,17 @@
+C:\Users\alexh\source\repos\Goopify\Goopify\bin\Debug\Goopify.exe.config
+C:\Users\alexh\source\repos\Goopify\Goopify\bin\Debug\Goopify.exe
+C:\Users\alexh\source\repos\Goopify\Goopify\bin\Debug\Goopify.pdb
+C:\Users\alexh\source\repos\Goopify\Goopify\bin\Debug\OpenTK.dll
+C:\Users\alexh\source\repos\Goopify\Goopify\bin\Debug\OpenTK.GLControl.dll
+C:\Users\alexh\source\repos\Goopify\Goopify\bin\Debug\OpenTK.pdb
+C:\Users\alexh\source\repos\Goopify\Goopify\bin\Debug\OpenTK.xml
+C:\Users\alexh\source\repos\Goopify\Goopify\bin\Debug\OpenTK.GLControl.pdb
+C:\Users\alexh\source\repos\Goopify\Goopify\bin\Debug\OpenTK.GLControl.xml
+C:\Users\alexh\source\repos\Goopify\Goopify\obj\Debug\Goopify.csprojAssemblyReference.cache
+C:\Users\alexh\source\repos\Goopify\Goopify\obj\Debug\Goopify.Properties.Resources.resources
+C:\Users\alexh\source\repos\Goopify\Goopify\obj\Debug\Goopify.csproj.GenerateResource.cache
+C:\Users\alexh\source\repos\Goopify\Goopify\obj\Debug\Goopify.csproj.CoreCompileInputs.cache
+C:\Users\alexh\source\repos\Goopify\Goopify\obj\Debug\Goopify.csproj.CopyComplete
+C:\Users\alexh\source\repos\Goopify\Goopify\obj\Debug\Goopify.exe
+C:\Users\alexh\source\repos\Goopify\Goopify\obj\Debug\Goopify.pdb
+C:\Users\alexh\source\repos\Goopify\Goopify\obj\Debug\Goopify.MainWindow.resources
