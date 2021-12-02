@@ -763,7 +763,7 @@ namespace Goopify
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
-        private void button1_Click(object sender, EventArgs e)
+        private void openCollisionButton_Click(object sender, EventArgs e)
         {
             OpenFileDialog fileDialog = new OpenFileDialog();
             fileDialog.Filter = "Collision File (*.col)|*.col";
@@ -944,24 +944,24 @@ namespace Goopify
         public void UpdateListBoxByCode()
         {
             goopSelectionByCode = true;
-            listBox1.SelectedIndices.Clear();
+            goopRegionListBox.SelectedIndices.Clear();
             for (int i = 0; i < selectedRegions.Count(); i++)
             {
                 goopSelectionByCode = true;
                 int listIndex = selectedRegions[i];
-                listBox1.SetSelected(listIndex, true);
+                goopRegionListBox.SetSelected(listIndex, true);
             }
         }
 
         public void SyncListBoxToRegions()
         {
             goopSelectionByCode = true;
-            listBox1.Items.Clear();
+            goopRegionListBox.Items.Clear();
             for (int i = 0; i < goopCutRegions.Count; i++)
             {
-                listBox1.Items.Add("Goop Cut Region " + i);
+                goopRegionListBox.Items.Add("Goop Cut Region " + i);
             }
-            listBox1.EndUpdate(); // Allow listbox to update
+            goopRegionListBox.EndUpdate(); // Allow listbox to update
             UpdateListBoxByCode();
         }
         
@@ -1029,7 +1029,7 @@ namespace Goopify
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
-        private void regionButton_Click(object sender, EventArgs e)
+        private void addRegionButton_Click(object sender, EventArgs e)
         {
             GoopRegionBox newGoopBox = new GoopRegionBox();
             Vector3 camPos = cameraPosition / matrixZoomAmount;
@@ -1052,7 +1052,7 @@ namespace Goopify
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
-        private void listBox1_SelectedIndexChanged(object sender, EventArgs e)
+        private void goopRegionListBox_SelectedIndexChanged(object sender, EventArgs e)
         {
             if(goopSelectionByCode)
             {
@@ -1060,7 +1060,7 @@ namespace Goopify
                 return;
             }
             selectedRegions.Clear();
-            foreach (int selectionIndex in listBox1.SelectedIndices)
+            foreach (int selectionIndex in goopRegionListBox.SelectedIndices)
             {
                 selectedRegions.Add(selectionIndex);
                 Console.WriteLine("List Selected: " + selectionIndex);
