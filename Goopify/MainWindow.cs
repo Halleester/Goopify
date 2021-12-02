@@ -82,6 +82,8 @@ namespace Goopify
         private bool downKeyPressed;
         private bool shiftKeyPressed;
 
+        private bool mouseOnePressed;
+
         private System.Timers.Timer UpdateTimer = new System.Timers.Timer();
 
 
@@ -97,16 +99,104 @@ namespace Goopify
         {
             public Vector3 centerPoint;
             public float size;
-            public bool selected;
+            public float heightRatio = 1;
+            public int horizontalResolution = 512;
+            public int verticalResolution = 512;
+
+            public GoopRegionBox Clone()
+            {
+                GoopRegionBox newGoopRegion = new GoopRegionBox();
+                newGoopRegion.centerPoint = centerPoint;
+                newGoopRegion.size = size;
+                newGoopRegion.heightRatio = heightRatio;
+                return newGoopRegion;
+            }
         }
 
         private List<GoopRegionBox> goopCutRegions = new List<GoopRegionBox>();
-        private bool movingRegion;
-        private int prevBoxSelected = -1;
+        private List<int> selectedRegions = new List<int>();
+        private List<Vector3> selectedRegionOffset = new List<Vector3>();
+        private bool goopSelectionByCode;
+
+        private const float selectionRadius = 80f;
+
+        private enum GoopRegionClick { ClickedNothing, ClickedCenter, ClickedCorner, Null }
+        private GoopRegionClick currentClickType;
+
+        // Undo/Redo stuff
+
+        private class RegionState
+        {
+            
+            public GoopRegionBox[] currentRegions;
+            public int[] selectedRegions;
+
+            /// <summary>
+            /// Creates a deep clone of the gotten regions and saves them to this RegionState
+            /// </summary>
+            /// <param name="allRegions">All goop regions</param>
+            /// <param name="currentSelectedRegions">The selected goop regions</param>
+            public RegionState(List<GoopRegionBox> allRegions, List<int> currentSelectedRegions)
+            {
+                int selectedRegionIndex = 0;
+                selectedRegions = new List<int>(currentSelectedRegions).ToArray();
+                currentRegions = new GoopRegionBox[allRegions.Count];
+                for (int i = 0; i < allRegions.Count; i++)
+                {
+                    GoopRegionBox clonedRegion = allRegions[i].Clone();
+                    currentRegions[i] = clonedRegion;
+                }
+            }
+
+            public RegionState(RegionState existingState)
+            {
+                List<GoopRegionBox> allRegions = existingState.currentRegions.ToList();
+
+                int selectedRegionIndex = 0;
+                selectedRegions = new List<int>(existingState.selectedRegions).ToArray();
+                currentRegions = new GoopRegionBox[allRegions.Count];
+                for (int i = 0; i < allRegions.Count; i++)
+                {
+                    GoopRegionBox clonedRegion = allRegions[i].Clone();
+                    currentRegions[i] = clonedRegion;
+                }
+            }
+
+            public RegionState()
+            {
+                selectedRegions = new int[0];
+                currentRegions = new GoopRegionBox[0];
+            }
+
+            public bool Equals(RegionState otherRegionState)
+            {
+                var list1Subset = currentRegions.Select(i => new { i.centerPoint, i.size, i.heightRatio });
+                var list2Subset = otherRegionState.currentRegions.Select(i => new { i.centerPoint, i.size, i.heightRatio });
+
+                bool regionsEqual = list1Subset.SequenceEqual(list2Subset);
+
+                bool selectedEqual = selectedRegions.SequenceEqual(otherRegionState.selectedRegions);
+
+                return regionsEqual && selectedEqual;
+            }
+        }
+
+        private Stack<RegionState> undoStack = new Stack<RegionState>();
+        private Stack<RegionState> redoStack = new Stack<RegionState>();
+
+        public bool snapPositions = true;
+        public float snapInterval = 100f;
+
+        public float RoundToInterval(float i)
+        {
+            return ((float)Math.Round(i / snapInterval)) * snapInterval;
+        }
 
         // Main functions
         public MainWindow()
         {
+            undoStack.Push(new RegionState()); // Push empty goop region to stack to start
+
             InitializeComponent();
 
             // Timer event for 
@@ -330,22 +420,22 @@ namespace Goopify
             GL.End();
 
             // Draw the sections we'll cut into goop models
-            foreach(GoopRegionBox goopBox in goopCutRegions)
+            for(int i = 0; i < goopCutRegions.Count; i++)
             {
                 // Draw box lines
                 GL.LineWidth(1f);
                 Color lineColor = Color.DarkGray;
-                if(goopBox.selected)
+                if(selectedRegions.Contains(i))
                 {
                     GL.LineWidth(4f);
                     lineColor = Color.Gray;
                 }
                 GL.Begin(PrimitiveType.Lines);
 
-                Vector3 boxTopRight = goopBox.centerPoint + new Vector3(goopBox.size, 0, goopBox.size);
-                Vector3 boxTopLeft = goopBox.centerPoint + new Vector3(goopBox.size, 0, -goopBox.size);
-                Vector3 boxBottomRight = goopBox.centerPoint + new Vector3(-goopBox.size, 0, goopBox.size);
-                Vector3 boxBottomLeft = goopBox.centerPoint + new Vector3(-goopBox.size, 0, -goopBox.size);
+                Vector3 boxTopRight = goopCutRegions[i].centerPoint + new Vector3(goopCutRegions[i].size, 0, goopCutRegions[i].size);
+                Vector3 boxTopLeft = goopCutRegions[i].centerPoint + new Vector3(goopCutRegions[i].size, 0, -goopCutRegions[i].size);
+                Vector3 boxBottomRight = goopCutRegions[i].centerPoint + new Vector3(-goopCutRegions[i].size, 0, goopCutRegions[i].size);
+                Vector3 boxBottomLeft = goopCutRegions[i].centerPoint + new Vector3(-goopCutRegions[i].size, 0, -goopCutRegions[i].size);
 
                 GL.Color4(lineColor);
                 GL.Vertex3(boxTopLeft);
@@ -365,7 +455,7 @@ namespace Goopify
                 // Draw box verts
                 GL.PointSize(5);
                 Color dotColor = Color.Gray;
-                if (goopBox.selected)
+                if (selectedRegions.Contains(i))
                 {
                     GL.PointSize(7);
                     dotColor = Color.White;
@@ -378,7 +468,7 @@ namespace Goopify
                 GL.Vertex3(boxBottomRight);
                 GL.Vertex3(boxBottomLeft);
                 
-                GL.Vertex3(goopBox.centerPoint);
+                GL.Vertex3(goopCutRegions[i].centerPoint);
 
                 GL.End();
             }
@@ -418,7 +508,16 @@ namespace Goopify
 
             if(e.Button == MouseButtons.Left)
             {
-                if(!drawingLine)
+                // Select the goop region based on clicked corners or center points
+                // Already selected regions take priority, center points over corners
+                Vector3 mouseWorldPos = ScreenToWorld(e.X, e.Y);
+                currentClickType = ClickGoopZones(mouseWorldPos);
+                mouseOnePressed = true;
+
+
+
+                // Drawing a line, converting to the boxes atm
+                /*if(!drawingLine)
                 {
                     Console.WriteLine("Drawing Line");
                     lineDrawn = false;
@@ -435,7 +534,7 @@ namespace Goopify
                         mapCol.SplitModelByLine(lineStart, lineEnd);
                         glControl1.Refresh();
                     }
-                }
+                }*/
             }
         }
 
@@ -461,6 +560,17 @@ namespace Goopify
 
                     return;
                 }
+            }
+
+            if(e.Button == MouseButtons.Left)
+            {
+                mouseOnePressed = false;
+                if(currentClickType != GoopRegionClick.Null || currentClickType != GoopRegionClick.ClickedNothing)
+                {
+                    SaveAction();
+
+                }
+                currentClickType = GoopRegionClick.Null;
             }
         }
 
@@ -518,6 +628,33 @@ namespace Goopify
             {
                 lineEnd = ScreenToWorld(e.X, e.Y) + cameraPosition / matrixZoomAmount;
                 glControl1.Refresh();
+            }
+
+            // Moving mouse around the screen for goop sections
+            if(mouseOnePressed)
+            {
+                Vector3 mouseWorldPos = ScreenToWorld(e.X, e.Y);
+                if(snapPositions)
+                {
+                    mouseWorldPos = new Vector3(RoundToInterval(mouseWorldPos.X), RoundToInterval(mouseWorldPos.Y), RoundToInterval(mouseWorldPos.Z));
+                }
+                Console.WriteLine(mouseWorldPos);
+                    
+                // TODO: Allow for movement of multiple areas at once
+                if (currentClickType == GoopRegionClick.ClickedCenter)
+                {
+                    for(int i = 0; i < selectedRegions.Count; i++)
+                    {
+                        goopCutRegions[selectedRegions[i]].centerPoint = new Vector3(mouseWorldPos.X, 0, mouseWorldPos.Z) + selectedRegionOffset[i];
+                    }
+                    glControl1.Refresh();
+                } else if(currentClickType == GoopRegionClick.ClickedCorner) // TODO: Support different ratios
+                {
+                    float widthDifference = Math.Abs(goopCutRegions[selectedRegions[0]].centerPoint.X - mouseWorldPos.X);
+                    float heightDifference = Math.Abs(goopCutRegions[selectedRegions[0]].centerPoint.Z - mouseWorldPos.Z);
+                    goopCutRegions[selectedRegions[0]].size = widthDifference > heightDifference ? widthDifference : heightDifference;
+                    glControl1.Refresh();
+                }
             }
 
             /*Vector2 mousePos = new Vector2(e.X, e.Y);
@@ -621,6 +758,11 @@ namespace Goopify
 
         #endregion
 
+        /// <summary>
+        /// Open Collision File Button
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void button1_Click(object sender, EventArgs e)
         {
             OpenFileDialog fileDialog = new OpenFileDialog();
@@ -670,6 +812,159 @@ namespace Goopify
 
         }
 
+
+        /// <summary>
+        /// 
+        /// </summary>
+        private GoopRegionClick ClickGoopZones(Vector3 mouseWorldPos)
+        {
+            // Clear selection offsets
+            selectedRegionOffset.Clear();
+            // Checks each goop region and sees if we clicked near one of their points
+            GoopRegionClick currentClick = GoopRegionClick.ClickedNothing;
+            int selectedIndex = -1;
+            bool foundSelectedCorner = false;
+            for (int i = 0; i < goopCutRegions.Count; i++)
+            {
+                // Checks if clicked near center point
+                float distFromClick = GetDistance(mouseWorldPos.X, mouseWorldPos.Z, goopCutRegions[i].centerPoint.X, goopCutRegions[i].centerPoint.Z);
+                //Console.WriteLine("Dist from mouse: " + distFromClick);
+                if (distFromClick <= selectionRadius) // Clicked near center radius
+                {
+                    if(shiftKeyPressed && selectedRegions.Contains(i)) // Skip this if we're multiselecting and already have this box
+                    {
+                        Console.WriteLine("De-selecting");
+                        selectedRegions.Remove(i);
+                        //SaveAction();
+                        UpdateListBoxByCode();
+                        glControl1.Refresh();
+                        return GoopRegionClick.Null;
+                    }
+                    currentClick = GoopRegionClick.ClickedCenter;
+                    selectedIndex = i;
+                    if (selectedRegions.Contains(i)) // Prioritize already selected boxes so this is the one we want
+                    {
+                        break;
+                    }
+                }
+
+                if(currentClick == GoopRegionClick.ClickedCenter) // Skip corners if we're multiselecting or have a center point already
+                {
+                    continue;
+                }
+
+                // Checks if clicked near corners
+                for (int j = 0; j < 4; j++)
+                {
+                    int horizontalCorner = 0;
+                    int verticalCorner = 0;
+                    switch (j)
+                    {
+                        case 0:
+                            horizontalCorner = 1;
+                            verticalCorner = 1;
+                            break;
+                        case 1:
+                            horizontalCorner = -1;
+                            verticalCorner = 1;
+                            break;
+                        case 2:
+                            horizontalCorner = 1;
+                            verticalCorner = -1;
+                            break;
+                        case 3:
+                            horizontalCorner = -1;
+                            verticalCorner = -1;
+                            break;
+                    }
+                    float horizontalCornerPos = goopCutRegions[i].centerPoint.X + (goopCutRegions[i].size * horizontalCorner);
+                    float verticalCornerPos = goopCutRegions[i].centerPoint.Z + (goopCutRegions[i].size * verticalCorner * goopCutRegions[i].heightRatio);
+                    distFromClick = GetDistance(mouseWorldPos.X, mouseWorldPos.Z, horizontalCornerPos, verticalCornerPos);
+                    //Console.WriteLine("Corner " + j + " Dist: " + distFromClick);
+                    if (distFromClick <= selectionRadius) // Clicked near center radius
+                    {
+                        // Prioritize last selected
+                        if(foundSelectedCorner && !selectedRegions.Contains(i))
+                        {
+                            continue;
+                        }
+                        if(selectedRegions.Contains(i))
+                        {
+                            foundSelectedCorner = true;
+                        }
+                        currentClick = GoopRegionClick.ClickedCorner;
+                        selectedIndex = i;
+                    }
+                }
+            }
+
+            //Console.WriteLine("CLICK TYPE: " + currentClick.ToString());
+            
+            // Update the selected regions based on keys we were holding down when clicking
+            if(selectedIndex == -1 || currentClick == GoopRegionClick.ClickedNothing) // No selections found
+            {
+                if(selectedRegions.Count > 0)
+                {
+                    selectedRegions.Clear();
+                }
+            } else if(shiftKeyPressed && currentClick == GoopRegionClick.ClickedCenter) // Case for multiselecting centers
+            {
+                selectedRegions.Add(selectedIndex);
+            } else // Clicked corner with/without multiselect or a center without multiselect
+            {
+                bool hasItem = selectedRegions.Contains(selectedIndex);
+                if (!hasItem)
+                {
+                    selectedRegions.Clear();
+                    selectedRegions.Add(selectedIndex);
+                }
+            }
+
+            // Update the offsets of all selected boxes based on mouse click pos
+            foreach(int index in selectedRegions)
+            {
+                if (snapPositions)
+                {
+                    mouseWorldPos = new Vector3(RoundToInterval(mouseWorldPos.X), RoundToInterval(mouseWorldPos.Y), RoundToInterval(mouseWorldPos.Z));
+                }
+                selectedRegionOffset.Add(goopCutRegions[index].centerPoint - mouseWorldPos);
+            }
+
+            // Update the list box with the new selections
+            UpdateListBoxByCode();
+
+            glControl1.Refresh();
+
+            return currentClick;
+        }
+
+        /// <summary>
+        /// Updates the goop region list box based on our currently selected goop regions
+        /// </summary>
+        public void UpdateListBoxByCode()
+        {
+            goopSelectionByCode = true;
+            listBox1.SelectedIndices.Clear();
+            for (int i = 0; i < selectedRegions.Count(); i++)
+            {
+                goopSelectionByCode = true;
+                int listIndex = selectedRegions[i];
+                listBox1.SetSelected(listIndex, true);
+            }
+        }
+
+        public void SyncListBoxToRegions()
+        {
+            goopSelectionByCode = true;
+            listBox1.Items.Clear();
+            for (int i = 0; i < goopCutRegions.Count; i++)
+            {
+                listBox1.Items.Add("Goop Cut Region " + i);
+            }
+            listBox1.EndUpdate(); // Allow listbox to update
+            UpdateListBoxByCode();
+        }
+        
         public Vector3 ScreenToWorld(int screenX, int screenY)
         {
             float xPos = (2.0f * screenX) / (float)glControl1.Width - 1f;
@@ -701,6 +996,16 @@ namespace Goopify
             return new Vector2(xPos, yPos);
         }
 
+        private float GetDistance(float x1, float y1, float x2, float y2)
+        {
+            return (float)Math.Sqrt(Math.Pow((x2 - x1), 2) + Math.Pow((y2 - y1), 2));
+        }
+
+        /// <summary>
+        /// Checkbox to swap between perspective and orthographic
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void checkBox1_CheckedChanged(object sender, EventArgs e)
         {
             isOrthographic = !isOrthographic;
@@ -731,32 +1036,116 @@ namespace Goopify
             newGoopBox.centerPoint = new Vector3(camPos.X, 10000, camPos.Z);
             newGoopBox.size = 1000;
             goopCutRegions.Add(newGoopBox);
+            selectedRegions.Clear();
+            selectedRegions.Add(goopCutRegions.Count - 1);
+            SaveAction();
 
-            int goopRegionIndex = goopCutRegions.Count - 1;
-            listBox1.Items.Add("Goop Cut Region " + goopRegionIndex);
-            listBox1.EndUpdate(); // Allow listbox to repaint
-            listBox1.SelectedIndex = goopRegionIndex;
+            SyncListBoxToRegions();
 
             glControl1.Invalidate();
         }
 
         /// <summary>
         /// Highlights the correct box when the corrosponding list item is clicked
+        /// If you're changing the selected items by code, make goopSelectionByCode true before any
+        /// changing any indexes. It calls this function otherwise
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
         private void listBox1_SelectedIndexChanged(object sender, EventArgs e)
         {
-            int newSelectedIndex = listBox1.SelectedIndex;
-            Console.WriteLine("List Selected: " + newSelectedIndex);
-            goopCutRegions[listBox1.SelectedIndex].selected = true;
-            if (prevBoxSelected != -1 && prevBoxSelected != newSelectedIndex)
+            if(goopSelectionByCode)
             {
-                goopCutRegions[prevBoxSelected].selected = false;
+                goopSelectionByCode = false;
+                return;
             }
-            prevBoxSelected = listBox1.SelectedIndex;
+            selectedRegions.Clear();
+            foreach (int selectionIndex in listBox1.SelectedIndices)
+            {
+                selectedRegions.Add(selectionIndex);
+                Console.WriteLine("List Selected: " + selectionIndex);
+            }
 
             glControl1.Invalidate();
+        }
+
+        private void MainWindow_KeyDown(object sender, KeyEventArgs e)
+        {
+            if(e.KeyCode == Keys.Z && e.Control && !e.Shift) // Undo
+            {
+                UndoAction();
+            }
+
+            if (e.KeyCode == Keys.Y && e.Control) // Redo
+            {
+                RedoAction();
+            }
+
+            if (e.KeyCode == Keys.Z && e.Control && e.Shift) // Redo
+            {
+                RedoAction();
+            }
+        }
+
+        #region UNDO/REDO
+        
+        private void UndoAction()
+        {
+            if (undoStack.Count <= 1) // Can't undo more
+            {
+                return;
+            }
+            Console.WriteLine("UNDOING ACTION");
+            redoStack.Push(undoStack.Pop()); // Add last action we did to the redo
+            RegionState stateToUndoTo = new RegionState(undoStack.Peek());
+
+            if(stateToUndoTo.currentRegions.Length > 0)
+            {
+                Console.WriteLine("UNDID CENTER: " + stateToUndoTo.currentRegions[0].centerPoint);
+            }
+            Console.WriteLine("NEW SELECTED COUNT: " + stateToUndoTo.selectedRegions.Length);
+
+            goopCutRegions = new List<GoopRegionBox>(stateToUndoTo.currentRegions);
+            selectedRegions = new List<int>(stateToUndoTo.selectedRegions);
+            SyncListBoxToRegions();
+            glControl1.Refresh();
+        }
+
+        private void RedoAction()
+        {
+            if (redoStack.Count < 1) // Can't redo more
+            {
+                return;
+            }
+            Console.WriteLine("REDOING ACTION");
+            undoStack.Push(redoStack.Pop()); // Add last action we did to the undo
+            RegionState stateToUndoTo = new RegionState(undoStack.Peek());
+            goopCutRegions = new List<GoopRegionBox>(stateToUndoTo.currentRegions);
+            selectedRegions = new List<int>(stateToUndoTo.selectedRegions);
+            SyncListBoxToRegions();
+            glControl1.Refresh();
+        }
+
+        private void SaveAction()
+        {
+            // Don't save action if we didn't make any changes
+            RegionState newState = new RegionState(goopCutRegions, selectedRegions);
+            if (newState.Equals(undoStack.Peek()))
+            {
+                return;
+            }
+            // Can't redo anymore
+            redoStack.Clear();
+            Console.WriteLine("SAVING ACTION");
+            Console.WriteLine("MOVED CENTER: " + newState.currentRegions[0].centerPoint);
+            undoStack.Push(newState);
+        }
+
+        #endregion
+
+        private void menuStrip1_ItemClicked(object sender, ToolStripItemClickedEventArgs e)
+        {
+
         }
     }
 }
