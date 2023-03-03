@@ -1,0 +1,53 @@
+[
+  {
+    "Name": "BmpTexture",
+    "Format": "I8",
+    "AlphaSetting": 0,
+    "WrapS": "ClampToEdge",
+    "WrapT": "ClampToEdge",
+    "PaletteFormat": "IA8",
+    "MipMap": 0,
+    "EdgeLOD": false,
+    "BiasClamp": false,
+    "MaxAniso": 0,
+    "MinFilter": "Linear",
+    "MagFilter": "Linear",
+    "MinLOD": 0.0,
+    "MaxLOD": 0.0,
+    "LodBias": 0.0
+  },
+  {
+    "Name": "B_RAKenogu_pink",
+    "Format": "CMPR",
+    "AlphaSetting": 0,
+    "WrapS": "Repeat",
+    "WrapT": "Repeat",
+    "PaletteFormat": "IA8",
+    "MipMap": 1,
+    "EdgeLOD": false,
+    "BiasClamp": false,
+    "MaxAniso": 0,
+    "MinFilter": "LinearMipmapLinear",
+    "MagFilter": "Linear",
+    "MinLOD": 0.0,
+    "MaxLOD": 4.0,
+    "LodBias": -0.14
+  },
+  {
+    "Name": "B_ind_metal",
+    "Format": "I8",
+    "AlphaSetting": 0,
+    "WrapS": "Repeat",
+    "WrapT": "Repeat",
+    "PaletteFormat": "IA8",
+    "MipMap": 1,
+    "EdgeLOD": false,
+    "BiasClamp": false,
+    "MaxAniso": 0,
+    "MinFilter": "LinearMipmapLinear",
+    "MagFilter": "Linear",
+    "MinLOD": 0.0,
+    "MaxLOD": 3.0,
+    "LodBias": 1.4
+  }
+]

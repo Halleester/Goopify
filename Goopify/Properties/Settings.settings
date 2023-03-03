@@ -1,7 +1,52 @@
 ﻿<?xml version='1.0' encoding='utf-8'?>
-<SettingsFile xmlns="http://schemas.microsoft.com/VisualStudio/2004/01/settings" CurrentProfile="(Default)">
-  <Profiles>
-    <Profile Name="(Default)" />
-  </Profiles>
-  <Settings />
+<SettingsFile xmlns="http://schemas.microsoft.com/VisualStudio/2004/01/settings" CurrentProfile="(Default)" GeneratedClassNamespace="Goopify.Properties" GeneratedClassName="Settings">
+  <Profiles />
+  <Settings>
+    <Setting Name="loadColDialogueRestore" Type="System.String" Scope="User">
+      <Value Profile="(Default)">c:\\</Value>
+    </Setting>
+    <Setting Name="dumpYmpDialogRestore" Type="System.String" Scope="User">
+      <Value Profile="(Default)">c:\\</Value>
+    </Setting>
+    <Setting Name="dumpSaveDialogRestore" Type="System.String" Scope="User">
+      <Value Profile="(Default)">c:\\</Value>
+    </Setting>
+    <Setting Name="goopTextureDialogRestore" Type="System.String" Scope="User">
+      <Value Profile="(Default)">c:\\</Value>
+    </Setting>
+    <Setting Name="resourceDialogueRestore" Type="System.String" Scope="User">
+      <Value Profile="(Default)">c:\\</Value>
+    </Setting>
+    <Setting Name="superBmdPath" Type="System.String" Scope="User">
+      <Value Profile="(Default)">null</Value>
+    </Setting>
+    <Setting Name="bmpImportPath" Type="System.String" Scope="User">
+      <Value Profile="(Default)">c:\\</Value>
+    </Setting>
+    <Setting Name="goopAngleTolerance" Type="System.Single" Scope="User">
+      <Value Profile="(Default)">85</Value>
+    </Setting>
+    <Setting Name="colTypesToRemove" Type="System.Int32[]" Scope="User">
+      <Value Profile="(Default)">&lt;?xml version="1.0" encoding="utf-16"?&gt;
+&lt;ArrayOfInt xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema"&gt;
+  &lt;int&gt;256&lt;/int&gt;
+  &lt;int&gt;257&lt;/int&gt;
+  &lt;int&gt;258&lt;/int&gt;
+  &lt;int&gt;259&lt;/int&gt;
+  &lt;int&gt;264&lt;/int&gt;
+  &lt;int&gt;266&lt;/int&gt;
+  &lt;int&gt;267&lt;/int&gt;
+  &lt;int&gt;514&lt;/int&gt;
+  &lt;int&gt;515&lt;/int&gt;
+  &lt;int&gt;1536&lt;/int&gt;
+  &lt;int&gt;2048&lt;/int&gt;
+&lt;/ArrayOfInt&gt;</Value>
+    </Setting>
+    <Setting Name="paintUndoSize" Type="System.Int32" Scope="User">
+      <Value Profile="(Default)">20</Value>
+    </Setting>
+    <Setting Name="colorPairings" Type="System.String" Scope="User">
+      <Value Profile="(Default)" />
+    </Setting>
+  </Settings>
 </SettingsFile>

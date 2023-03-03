@@ -8,22 +8,163 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 
-namespace Goopify.Properties
-{
-
-
+namespace Goopify.Properties {
+    
+    
     [global::System.Runtime.CompilerServices.CompilerGeneratedAttribute()]
-    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.VisualStudio.Editors.SettingsDesigner.SettingsSingleFileGenerator", "11.0.0.0")]
-    internal sealed partial class Settings : global::System.Configuration.ApplicationSettingsBase
-    {
-
+    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.VisualStudio.Editors.SettingsDesigner.SettingsSingleFileGenerator", "16.10.0.0")]
+    internal sealed partial class Settings : global::System.Configuration.ApplicationSettingsBase {
+        
         private static Settings defaultInstance = ((Settings)(global::System.Configuration.ApplicationSettingsBase.Synchronized(new Settings())));
-
-        public static Settings Default
-        {
-            get
-            {
+        
+        public static Settings Default {
+            get {
                 return defaultInstance;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("c:\\\\")]
+        public string loadColDialogueRestore {
+            get {
+                return ((string)(this["loadColDialogueRestore"]));
+            }
+            set {
+                this["loadColDialogueRestore"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("c:\\\\")]
+        public string dumpYmpDialogRestore {
+            get {
+                return ((string)(this["dumpYmpDialogRestore"]));
+            }
+            set {
+                this["dumpYmpDialogRestore"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("c:\\\\")]
+        public string dumpSaveDialogRestore {
+            get {
+                return ((string)(this["dumpSaveDialogRestore"]));
+            }
+            set {
+                this["dumpSaveDialogRestore"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("c:\\\\")]
+        public string goopTextureDialogRestore {
+            get {
+                return ((string)(this["goopTextureDialogRestore"]));
+            }
+            set {
+                this["goopTextureDialogRestore"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("c:\\\\")]
+        public string resourceDialogueRestore {
+            get {
+                return ((string)(this["resourceDialogueRestore"]));
+            }
+            set {
+                this["resourceDialogueRestore"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("null")]
+        public string superBmdPath {
+            get {
+                return ((string)(this["superBmdPath"]));
+            }
+            set {
+                this["superBmdPath"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("c:\\\\")]
+        public string bmpImportPath {
+            get {
+                return ((string)(this["bmpImportPath"]));
+            }
+            set {
+                this["bmpImportPath"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("85")]
+        public float goopAngleTolerance {
+            get {
+                return ((float)(this["goopAngleTolerance"]));
+            }
+            set {
+                this["goopAngleTolerance"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute(@"<?xml version=""1.0"" encoding=""utf-16""?>
+<ArrayOfInt xmlns:xsi=""http://www.w3.org/2001/XMLSchema-instance"" xmlns:xsd=""http://www.w3.org/2001/XMLSchema"">
+  <int>256</int>
+  <int>257</int>
+  <int>258</int>
+  <int>259</int>
+  <int>264</int>
+  <int>266</int>
+  <int>267</int>
+  <int>514</int>
+  <int>515</int>
+  <int>1536</int>
+  <int>2048</int>
+</ArrayOfInt>")]
+        public int[] colTypesToRemove {
+            get {
+                return ((int[])(this["colTypesToRemove"]));
+            }
+            set {
+                this["colTypesToRemove"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("20")]
+        public int paintUndoSize {
+            get {
+                return ((int)(this["paintUndoSize"]));
+            }
+            set {
+                this["paintUndoSize"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("")]
+        public string colorPairings {
+            get {
+                return ((string)(this["colorPairings"]));
+            }
+            set {
+                this["colorPairings"] = value;
             }
         }
     }

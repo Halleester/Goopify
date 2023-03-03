@@ -5,10 +5,11 @@ using System.Drawing;
 using System.Collections.Generic;
 using OpenTK;
 using System.Linq;
+using System.Diagnostics;
 
 namespace Goopify
 {
-    class Col
+    public class Col
     {
 
         private class Header
@@ -36,17 +37,34 @@ namespace Goopify
         public class Triangle
         {
             public int[] vertexIndices = new int[3];
-            public int colType = 0;
+            /*public int colType = 0;
             public int terrainType = 0;
-            public int unknown = 0;
+            public int unknown = 0;*/
             public int colParameter;
 
+            public Triangle Clone()
+            {
+                Triangle clone = new Triangle();
+                clone.vertexIndices = (int[])vertexIndices.Clone();
+                /*clone.colType = colType;
+                clone.terrainType = terrainType;
+                clone.unknown = unknown;*/
+                clone.colParameter = colParameter;
+                return clone;
+            }
+
+            public Triangle() { }
+
+            public Triangle(int colValue) {
+                colParameter = colValue;
+            }
         }
 
         // Variables needed to display a col file
         private List<Vector3> vertList = new List<Vector3>();
         private Triangle[] allTrianglesArray;
-        private Vector2[] uvArray;
+        private Vector2[] bitmapUvArray;
+        private Vector2[] goopUvArray;
 
         // Variables that define the bounds of the col
         private Vector2 topLeftBound;
@@ -54,8 +72,6 @@ namespace Goopify
 
         private bool colSetup = false;
         private bool uvSetup = false;
-
-        private int current_texture;
 
         private bool showNormals = false;
         private bool showWireframe = false;
@@ -170,8 +186,8 @@ namespace Goopify
             Console.WriteLine(colHeader.vertCount + ", " + colHeader.vertOffset + ", " + colHeader.groupCount + ", " + colHeader.groupOffset);
 
             //uvArray = SetUVByProjection();
-            current_texture = LoadTexture("C://Users//alexh//Downloads//custom_event_thumbnail.png", 1);
-            GL.Enable(EnableCap.Texture2D);
+            //current_texture = LoadTexture("C://Users//alexh//Downloads//custom_event_thumbnail.png", 1);
+            //GL.Enable(EnableCap.Texture2D);
 
             //uvArray = SetUVByProjection(); // Unwraps the model to use a projected texture
 
@@ -184,11 +200,15 @@ namespace Goopify
         /// </summary>
         /// <param name="gottenVerts">Vertexes from the cut half of a col</param>
         /// <param name="gottenTriangles">Triangles from the cut half of a col</param>
-        public Col(Vector3[] gottenVerts, Triangle[] gottenTriangles)
+        public Col(List<Vector3> gottenVerts, Triangle[] gottenTriangles)
         {
             // Save the triangles and verts
             vertList = new List<Vector3>(gottenVerts);
-            allTrianglesArray = gottenTriangles;
+            allTrianglesArray = new Triangle[gottenTriangles.Length];
+            for(int i = 0; i < allTrianglesArray.Length; i++)
+            {
+                allTrianglesArray[i] = gottenTriangles[i].Clone();
+            }
 
             // Calculate the model bounds
             float maxXPos = float.MaxValue;
@@ -231,8 +251,16 @@ namespace Goopify
             colSetup = true;
         }
 
+        private Color MixColor(Color color, Color backColor, double amount)
+        {
+            byte r = (byte)(color.R * amount + backColor.R * (1 - amount));
+            byte g = (byte)(color.G * amount + backColor.G * (1 - amount));
+            byte b = (byte)(color.B * amount + backColor.B * (1 - amount));
+            return Color.FromArgb(r, g, b);
+        }
+
         // Call to render this col file
-        public void RenderCol()
+        public void RenderCol(int textureToLoad = 0, int pollutionTexture = 0)
         {
             if(!colSetup)
             {
@@ -242,44 +270,57 @@ namespace Goopify
 
             //Draw triangles
 
-            // Lighting
-
-            /* GL.Enable(EnableCap.Lighting);
-             float[] lightDiffuse = { 1.0f, 0.0f, 0.0f };
-             GL.Light(LightName.Light0, LightParameter.Diffuse, lightDiffuse);
-             GL.Enable(EnableCap.Light0);*/
-
-            GL.BindTexture(TextureTarget.Texture2D, current_texture);
+            if (uvSetup) {
+                GL.Enable(EnableCap.Texture2D);   
+            } else {
+                GL.Disable(EnableCap.Texture2D);
+            }
+            GL.BindTexture(TextureTarget.Texture2D, textureToLoad);
 
             // Culling
 
             GL.Enable(EnableCap.CullFace);
             GL.CullFace(CullFaceMode.Front);
 
-            GL.Color4(Color.White);
+            //GL.Color4(Color.White);
 
             GL.Begin(PrimitiveType.Triangles);
 
             foreach(Triangle currentTriangle in allTrianglesArray)
             {
-                Vector3 triangleNormal = Vector3.Cross(vertList[currentTriangle.vertexIndices[1]] - vertList[currentTriangle.vertexIndices[0]], vertList[currentTriangle.vertexIndices[2]] - vertList[currentTriangle.vertexIndices[0]]);
-                GL.Normal3(Vector3.Normalize(triangleNormal));
-                Random rnd = new Random(currentTriangle.colParameter);
+                Vector3 triangleNormal = Vector3.Cross(vertList[currentTriangle.vertexIndices[0]] - vertList[currentTriangle.vertexIndices[1]], vertList[currentTriangle.vertexIndices[0]] - vertList[currentTriangle.vertexIndices[2]]);
 
-                Color triangleColor = Color.FromArgb(rnd.Next(256), rnd.Next(256), rnd.Next(256));
+                Color triangleColor;
+                if (EditorWindow.colNumColor.ContainsKey(currentTriangle.colParameter)) {
+                    triangleColor = EditorWindow.colNumColor[currentTriangle.colParameter];
+                } else {
+                    Random rnd = new Random(currentTriangle.colParameter);
+                    triangleColor = Color.FromArgb(rnd.Next(256), rnd.Next(256), rnd.Next(256));
+                }
+                
+                // Get the color of the normal
+                if(triangleNormal == Vector3.Zero) {
+                    triangleNormal = new Vector3(0, 1, 0);
+                }
+                Vector3 triangleNormalized = triangleNormal.Normalized();
+                Vector3 lightDirection = new Vector3(0.5f, -0.5f, 0.5f);
+                double distance = Vector3.CalculateAngle(triangleNormalized, lightDirection) / Math.PI;
+                Color lightColor = Color.FromArgb((int)(distance * 255), (int)(distance * 255), (int)(distance * 255));
+
+                //if (!uvSetup)
+                GL.Color3(MixColor(triangleColor, lightColor, currentTriangle.colParameter == -1 ? 1 : 0.5f));
+
                 for (int i = 0; i < 3; i++)
                 {
-                    
-                    if(uvSetup)
-                    {
-                        GL.TexCoord2(uvArray[currentTriangle.vertexIndices[i]]);
-                    } else
-                    {
-                        GL.Color3(triangleColor);
+                    if(uvSetup) {
+                        Vector2 textCoord = bitmapUvArray[currentTriangle.vertexIndices[i]];
+                        GL.TexCoord2(new Vector2(textCoord.X * -1, textCoord.Y));
                     }
                     GL.Vertex3(vertList[currentTriangle.vertexIndices[i]]);
                 }
             }
+
+            
 
             GL.End();
 
@@ -337,25 +378,120 @@ namespace Goopify
             return bottomRightBound;
         }
 
+        public float ReturnLowestVertHeight()
+        {
+            float lowestHeight = float.MaxValue;
+            foreach(Vector3 vert in vertList)
+            {
+                if(vert.Y < lowestHeight) { lowestHeight = vert.Y; }
+            }
+            return lowestHeight;
+        }
+
+        public float ReturnLowestVertHeight(float xMin, float xMax, float zMin, float zMax, int[] colsToIgnore = null)
+        {
+            float lowestHeight = float.MaxValue;
+            foreach (Triangle currentTriangle in allTrianglesArray) {
+                // Ignore triangles that have a collision we're ignoring
+                if(colsToIgnore != null && colsToIgnore.Contains(currentTriangle.colParameter)) {
+                    continue;
+                }
+                // Ignore triangles that are not within tolerance
+                // TODO: Fix for different layer types
+                Vector3 triangleNormal = Vector3.Cross(vertList[currentTriangle.vertexIndices[1]] - vertList[currentTriangle.vertexIndices[0]], vertList[currentTriangle.vertexIndices[2]] - vertList[currentTriangle.vertexIndices[0]]).Normalized();
+                if (Vector3.CalculateAngle(Vector3.UnitY, triangleNormal) > (Properties.Settings.Default.goopAngleTolerance * Math.PI / 180)) // If normal is within angle tolerance of facing upward, keep it
+                {
+                    continue;
+                }
+                // Check each vert in triangle for lowest point (if in valid area)
+                for (int i = 0; i < 3; i++) {
+                    Vector3 vert = vertList[currentTriangle.vertexIndices[i]];
+                    // Check if the vert is within bounds
+                    if(vert.X >= xMin && vert.X <= xMax && vert.Z >= zMin && vert.Z <= zMax) {
+                        if (vert.Y < lowestHeight) { lowestHeight = vert.Y; }
+                    }
+                }
+            }
+            return lowestHeight;
+        }
+
+        public float ReturnHighestVertHeight()
+        {
+            float highestHeight = float.MinValue;
+            foreach (Vector3 vert in vertList)
+            {
+                if (vert.Y > highestHeight) { highestHeight = vert.Y; }
+            }
+            return highestHeight;
+        }
+
+        public Vector2? GetUVFromPosAndDir(Vector3 worldPos, Vector3 dir)
+        {
+            if(RaycastToModel(worldPos, dir, out RaycastHitInfo hit) && bitmapUvArray.Length == vertList.Count)
+            {
+                // Convert the point to a barycentric point in the triangle and use it to lerp the uv
+                
+                // Get triangle points
+                Vector3 p1 = vertList[hit.triangle.vertexIndices[0]];
+                Vector3 p2 = vertList[hit.triangle.vertexIndices[1]];
+                Vector3 p3 = vertList[hit.triangle.vertexIndices[2]];
+                // Get point uvs
+                Vector2 uv1 = bitmapUvArray[hit.triangle.vertexIndices[0]];
+                Vector2 uv2 = bitmapUvArray[hit.triangle.vertexIndices[1]];
+                Vector2 uv3 = bitmapUvArray[hit.triangle.vertexIndices[2]];
+                // Calculate vectors from hit point triangle vertices
+                Vector3 f1 = p1 - hit.hitPos;
+                Vector3 f2 = p2 - hit.hitPos;
+                Vector3 f3 = p3 - hit.hitPos;
+                // calculate the areas
+                Vector3 va = Vector3.Cross(p1 - p2, p1 - p3); // main triangle cross product
+                Vector3 va1 = Vector3.Cross(f2, f3); // p1's triangle cross product
+                Vector3 va2 = Vector3.Cross(f3, f1); // p2's triangle cross product
+                Vector3 va3 = Vector3.Cross(f1, f2); // p3's triangle cross product
+                float a = va.Length; // main triangle area
+                // calculate barycentric coordinates with sign
+                float a1 = va1.Length / a * Math.Sign(Vector3.Dot(va, va1));
+                float a2 = va2.Length / a * Math.Sign(Vector3.Dot(va, va2));
+                float a3 = va3.Length / a * Math.Sign(Vector3.Dot(va, va3));
+                // find the uv corresponding to point f (uv1/uv2/uv3 are associated to p1/p2/p3)
+                Vector2 uv = (uv1 * a1 + uv2 * a2 + uv3 * a3);
+                return new Vector2(uv.X, 1 - uv.Y);
+            }
+            return null;
+        }
+
+        public void OffsetAllVerts(Vector3 offset)
+        {
+            for(int i = 0; i < vertList.Count; i++)
+            {
+                vertList[i] += offset;
+            }
+        }
+
+        public void ScaleModel(float scale)
+        {
+            for (int i = 0; i < vertList.Count; i++) {
+                vertList[i] = vertList[i] * scale;
+            }
+        }
+
         /// <summary>
         /// Splits the col into two different models 
         /// </summary>
         /// <param name="pointOne"></param>
         /// <param name="pointTwo"></param>
-        /// <returns></returns>
-        public Col SplitModelByLine(Vector3 pointOne, Vector3 pointTwo)
+        /// <returns>Right side collision</returns>
+        public Col SplitModelByLine(Vector3 pointOne, Vector3 pointTwo, bool returnRight = false)
         {
+            Col modelCopy = new Col(vertList, allTrianglesArray);
             List<Triangle> leftTriangleList = new List<Triangle>();
             List<Triangle> rightTriangleList = new List<Triangle>();
 
-            List<Vector3> addedVertList = new List<Vector3>();
-            List<Triangle> addedTriangleList = new List<Triangle>();
-
-            foreach (Triangle currentTriangle in allTrianglesArray)
+            foreach (Triangle currentTriangle in modelCopy.allTrianglesArray)
             {
-                bool? vertOneLeft = IsLeftOf(pointOne, pointTwo, vertList[currentTriangle.vertexIndices[0]]);
-                bool? vertTwoLeft = IsLeftOf(pointOne, pointTwo, vertList[currentTriangle.vertexIndices[1]]);
-                bool? vertThreeLeft = IsLeftOf(pointOne, pointTwo, vertList[currentTriangle.vertexIndices[2]]);
+                bool? vertOneLeft = modelCopy.IsLeftOf(pointOne, pointTwo, modelCopy.vertList[currentTriangle.vertexIndices[0]]);
+                bool? vertTwoLeft = modelCopy.IsLeftOf(pointOne, pointTwo, modelCopy.vertList[currentTriangle.vertexIndices[1]]);
+                bool? vertThreeLeft = modelCopy.IsLeftOf(pointOne, pointTwo, modelCopy.vertList[currentTriangle.vertexIndices[2]]);
 
                 int leftValue = 0;
                 int rightValue = 0;
@@ -378,7 +514,7 @@ namespace Goopify
                         // One and two on the same side
                         if (vertOneLeft == vertTwoLeft)
                         {
-                            Triangle[] splitTriangles = SplitTriangle(0, 1, 2, currentTriangle, pointOne, pointTwo);
+                            Triangle[] splitTriangles = modelCopy.SplitTriangle(0, 1, 2, currentTriangle, pointOne, pointTwo);
                             if(vertOneLeft == true)
                             {
                                 leftTriangleList.Add(splitTriangles[0]);
@@ -394,7 +530,7 @@ namespace Goopify
                         // Two and three on the same side
                         if (vertTwoLeft == vertThreeLeft)
                         {
-                            Triangle[] splitTriangles = SplitTriangle(1, 2, 0, currentTriangle, pointOne, pointTwo);
+                            Triangle[] splitTriangles = modelCopy.SplitTriangle(1, 2, 0, currentTriangle, pointOne, pointTwo);
                             if (vertTwoLeft == true)
                             {
                                 leftTriangleList.Add(splitTriangles[0]);
@@ -411,7 +547,7 @@ namespace Goopify
                         // Three and one on the same side
                         if (vertThreeLeft == vertOneLeft)
                         {
-                            Triangle[] splitTriangles = SplitTriangle(2, 0, 1, currentTriangle, pointOne, pointTwo);
+                            Triangle[] splitTriangles = modelCopy.SplitTriangle(2, 0, 1, currentTriangle, pointOne, pointTwo);
                             if (vertThreeLeft == true)
                             {
                                 leftTriangleList.Add(splitTriangles[0]);
@@ -431,7 +567,7 @@ namespace Goopify
             }
 
             // Combine all triangles into new triangle list
-            allTrianglesArray = leftTriangleList.Concat(rightTriangleList).ToArray();
+            /*allTrianglesArray = leftTriangleList.Concat(rightTriangleList).ToArray();
 
             foreach(Triangle tri in leftTriangleList)
             {
@@ -440,11 +576,15 @@ namespace Goopify
             foreach (Triangle tri in rightTriangleList)
             {
                 tri.colParameter = 1120;
-            }
+            }*/
 
-            CleanUpVerts();
-
-            return null;
+            Col cutCol = new Col(modelCopy.vertList, returnRight ? rightTriangleList.ToArray() : leftTriangleList.ToArray());
+            cutCol.CleanUpVerts();
+            /*foreach(Triangle tri in cutCol.allTrianglesArray)
+            {
+                tri.colParameter = 10;
+            }*/
+            return cutCol;
         }
 
         /// <summary>
@@ -460,7 +600,8 @@ namespace Goopify
         /// <returns></returns>
         private Triangle[] SplitTriangle(int pointOrderOne, int pointOrderTwo, int pointOrderThree, Triangle currentTriangle, Vector3 pointOne, Vector3 pointTwo)
         {
-            Triangle[] splitTriangles = new Triangle[3] { new Triangle(), new Triangle(), new Triangle() };
+            int colVal = currentTriangle.colParameter;
+            Triangle[] splitTriangles = new Triangle[3] { new Triangle(colVal), new Triangle(colVal), new Triangle(colVal) };
 
             Vector3 intersectPointOne = FindIntersection(vertList[currentTriangle.vertexIndices[pointOrderOne]], vertList[currentTriangle.vertexIndices[pointOrderThree]], pointOne, pointTwo);
             Vector3 intersectPointTwo = FindIntersection(vertList[currentTriangle.vertexIndices[pointOrderTwo]], vertList[currentTriangle.vertexIndices[pointOrderThree]], pointOne, pointTwo);
@@ -541,34 +682,160 @@ namespace Goopify
         }
 
         /// <summary>
+        /// Checks each triangle in the model at that position and returns the highest intersection point
+        /// </summary>
+        /// <param name="pointToCheck"></param>
+        /// <returns></returns>
+        public float? GetHighestIntersectionPosition(Vector3 pointToCheck)
+        {
+            float topHeight = float.MinValue;
+            // TODO: Change that Unit Vector based on the pollution layer type
+            Vector3 rayDirection = -Vector3.UnitY;
+            foreach (Triangle triangle in allTrianglesArray)
+            {
+                Vector3 edge1 = vertList[triangle.vertexIndices[1]] - vertList[triangle.vertexIndices[0]];
+                Vector3 edge2 = vertList[triangle.vertexIndices[2]] - vertList[triangle.vertexIndices[0]];
+
+                
+                Vector3 pVec = Vector3.Cross(rayDirection, edge2); 
+                float det = Vector3.Dot(edge1, pVec); // Determinant
+
+                //if determinant is near zero, ray lies in plane of triangle otherwise not
+                if (det > -float.Epsilon && det < float.Epsilon) { continue; }
+                float invDet = 1.0f / det;
+
+                //calculate distance from p1 to ray origin
+                Vector3 tVec = pointToCheck - vertList[triangle.vertexIndices[0]];
+
+                //Calculate u parameter
+                float u = Vector3.Dot(tVec, pVec) * invDet;
+
+                //Check for ray hit
+                if (u < 0 || u > 1) { continue; }
+
+                //Prepare to test v parameter
+                Vector3 qVec = Vector3.Cross(tVec, edge1);
+
+                //Calculate v parameter
+                float v = Vector3.Dot(rayDirection, qVec) * invDet;
+
+                //Check for ray hit
+                if (v < 0 || u + v > 1) { continue; }
+
+                float t = Vector3.Dot(edge2, qVec) * invDet;
+                if (t > float.Epsilon) //ray does intersect
+                {
+                    float gottenHeight = (rayDirection * t + pointToCheck).Y;
+                    if(gottenHeight > topHeight) { topHeight = gottenHeight; }
+                }
+            }
+            // Return the height if it exists
+            if (topHeight != float.MinValue) {
+                return topHeight;
+            }
+            return null;
+        }
+
+        public class RaycastHitInfo
+        {
+            public Triangle triangle;
+            public Vector3 hitPos;
+
+            public RaycastHitInfo(Triangle tri, Vector3 pos)
+            {
+                triangle = tri;
+                hitPos = pos;
+            }
+        }
+
+        public bool RaycastToModel(Vector3 origin, Vector3 direction, out RaycastHitInfo hit)
+        {
+            hit = null;
+            float shortestT = float.MaxValue;
+            foreach (Triangle triangle in allTrianglesArray)
+            {
+                Vector3 edge1 = vertList[triangle.vertexIndices[1]] - vertList[triangle.vertexIndices[0]];
+                Vector3 edge2 = vertList[triangle.vertexIndices[2]] - vertList[triangle.vertexIndices[0]];
+
+
+                Vector3 pVec = Vector3.Cross(direction, edge2);
+                float det = Vector3.Dot(edge1, pVec); // Determinant
+
+                //if determinant is near zero, ray lies in plane of triangle otherwise not
+                if (det > -float.Epsilon && det < float.Epsilon) { continue; }
+                float invDet = 1.0f / det;
+
+                //calculate distance from p1 to ray origin
+                Vector3 tVec = origin - vertList[triangle.vertexIndices[0]];
+
+                //Calculate u parameter
+                float u = Vector3.Dot(tVec, pVec) * invDet;
+
+                //Check for ray hit
+                if (u < 0 || u > 1) { continue; }
+
+                //Prepare to test v parameter
+                Vector3 qVec = Vector3.Cross(tVec, edge1);
+
+                //Calculate v parameter
+                float v = Vector3.Dot(direction, qVec) * invDet;
+
+                //Check for ray hit
+                if (v < 0 || u + v > 1) { continue; }
+
+                float t = Vector3.Dot(edge2, qVec) * invDet;
+                if (t > float.Epsilon) //ray does intersect
+                {
+                    if(t < shortestT) { // Take the closest raycast
+                        hit = new RaycastHitInfo(triangle, (direction * t + origin));
+                        shortestT = t;
+                    }
+                }
+            }
+            return hit != null;
+        }
+
+        /// <summary>
         /// Sets the uv coords of the cols vertexes projection style
         /// Bottom left is 0,0 in uv coordinates
         /// </summary>
         /// <returns></returns>
-        private Vector2[] SetUVByProjection()
+        public void SetUVsByProjection(Vector3 boxBottomLeftCorner, float boxWidth, float boxLenght)
         {
-            Vector2[] vertUVArray = new Vector2[vertList.Count];
-
-            float modelWidth = topLeftBound.X - bottomRightBound.X;
-            float modelHeight = topLeftBound.Y - bottomRightBound.Y;
+            Vector2[] vertBitmapUVArray = new Vector2[vertList.Count];
+            Vector2[] vertGoopUVArray = new Vector2[vertList.Count];
 
             for (int i = 0; i < vertList.Count; i++)
             {
-                if(vertList[i].Y == topLeftBound.Y)
+                if (vertList[i].Y == topLeftBound.Y)
                 {
                     Console.WriteLine("Smallest Vert X");
                 }
-                float vertWidth = vertList[i].X - topLeftBound.X;// Left is positive x so doing left minus right
-                float vertHeight = vertList[i].Z - bottomRightBound.Y; // Looking on the z axis
-
-                float vertUVX = 1 - vertWidth / modelWidth;
-                float vertUVY = 1 - vertHeight / modelHeight;
-
-                vertUVArray[i] = new Vector2(vertUVX, vertUVY);
+                float vertWidth = vertList[i].X - boxBottomLeftCorner.X;// Left is positive x so doing left minus right
+                float vertHeight = boxBottomLeftCorner.Z - vertList[i].Z; // Looking on the z axis
+                // Set the bitmap UV for the vert
+                float vertBitmapUVX = vertWidth / boxWidth;
+                float vertBitmapUVY = vertHeight / boxLenght;
+                vertBitmapUVArray[i] = new Vector2(vertBitmapUVX, vertBitmapUVY);
+                // Set the goop UV for the vert
+                Vector2 goopUv = new Vector2(vertList[i].X / 2048, vertList[i].Z / 2048);
+                vertGoopUVArray[i] = goopUv;
             }
 
             uvSetup = true;
-            return vertUVArray;
+            bitmapUvArray = vertBitmapUVArray;
+            goopUvArray = vertGoopUVArray;
+        }
+
+        public float goopUvScale = 1;
+        public void ChangeGoopUVScale(float newScale)
+        {
+            if(newScale <= 0) { return; }
+            for(int i = 0; i < goopUvArray.Length; i++)
+            {
+                goopUvArray[i] = goopUvArray[i] * goopUvScale / newScale;
+            }
+            goopUvScale = newScale;
         }
 
         /// <summary>
@@ -621,133 +888,189 @@ namespace Goopify
 
         /// <summary>
         /// Removes all triangles that wouldn't apply for converting to goop bmds (facing sideways or down)
-        /// DOESN'T WORK ATM
         /// </summary>
-        private void CleanupModelForGoop()
+        public void CleanupModelForGoop(int[] colTypesToRemove, float heightMinimum = float.NegativeInfinity)
         {
             List<Triangle> newTriangleList = new List<Triangle>();
             foreach(Triangle currentTriangle in allTrianglesArray)
             {
-                Vector3 triangleNormal = Vector3.Cross(vertList[currentTriangle.vertexIndices[1]] - vertList[currentTriangle.vertexIndices[0]], vertList[currentTriangle.vertexIndices[2]] - vertList[currentTriangle.vertexIndices[0]]);
-                if(Vector3.CalculateAngle(Vector3.UnitY, triangleNormal) < 90) // If normal is within 90 degrees of facing upward, keep it
+                // Remove triangles that are of a collision type we don't want
+                bool isInvalidCol = false;
+                foreach(int removeColType in colTypesToRemove)
+                {
+                    if(currentTriangle.colParameter == removeColType || currentTriangle.colParameter == (removeColType + 32768)) {
+                        isInvalidCol = true;
+                        break;
+                    }
+                }
+                if(isInvalidCol) { continue; }
+                // Remove triangles that have a point below the minimum height or above the height limit of the region
+                bool isInvalidHeight = false;
+                foreach(int vertIndex in currentTriangle.vertexIndices)
+                {
+                    if(vertList[vertIndex].Y < heightMinimum || vertList[vertIndex].Y > heightMinimum + EditorWindow.maxRegionHeight) {
+                        isInvalidHeight = true;
+                    }
+                }
+                if (isInvalidHeight) { continue; }
+                // Remove triangles not facing up enough for the goop to matter
+                // TODO: Support wall goop, should just be a case of changing the UnitY based on layer type
+                Vector3 triangleNormal = Vector3.Cross(vertList[currentTriangle.vertexIndices[1]] - vertList[currentTriangle.vertexIndices[0]], vertList[currentTriangle.vertexIndices[2]] - vertList[currentTriangle.vertexIndices[0]]).Normalized();
+                if(Vector3.CalculateAngle(Vector3.UnitY, triangleNormal) < (Properties.Settings.Default.goopAngleTolerance * Math.PI/180)) // If normal is within angle tolerance of facing upward, keep it
                 {
                     newTriangleList.Add(currentTriangle);
                 }
             }
 
             allTrianglesArray = newTriangleList.ToArray();
+
+            CleanUpVerts();
+
+            // Set the collision to all be the same color
+            foreach (Triangle tri in allTrianglesArray) {
+                tri.colParameter = -1;
+            }
+
+            // Trim the overlapping triangles
+            // TODO: Remove faces that are covered and theirfor should not be affected by the goop
+            // Ideas: compare each triangle for overlap, cut the lowest one using the higher ones edges, remove the triangles inside, check the outside ones again
         }
 
-        private int LoadTexture(string path, int quality = 0, bool repeat = true, bool flip_y = false)
+        // Unused, Obj can only store one UV with means we can't convert it to a proper goop model
+        /*public void CreateObjFromCol(string objPath)
         {
-            Bitmap bitmap = new Bitmap(path);
-
-            //Flip the image
-            if (flip_y)
-                bitmap.RotateFlip(RotateFlipType.RotateNoneFlipY);
-
-            //Generate a new texture target in gl
-            int texture = GL.GenTexture();
-
-            //Will bind the texture newly/empty created with GL.GenTexture
-            //All gl texture methods targeting Texture2D will relate to this texture
-            GL.BindTexture(TextureTarget.Texture2D, texture);
-
-            //The reason why your texture will show up glColor without setting these parameters is actually
-            //TextureMinFilters fault as its default is NearestMipmapLinear but we have not established mipmapping
-            //We are only using one texture at the moment since mipmapping is a collection of textures pre filtered
-            //I'm assuming it stops after not having a collection to check.
-            switch (quality)
+            // Delete the file in case we already made a local obj model for this path
+            File.Delete(objPath);
+            // Write the data into an obj format
+            using (var outStream = File.OpenWrite(objPath))
+            using (var writer = new StreamWriter(outStream))
             {
-                case 0:
-                default://Low quality
-                    GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMagFilter, (int)All.Linear);
-                    GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMinFilter, (int)All.Linear);
-                    break;
-                case 1://High quality
-                       //This is in my opinion the best since it doesnt average the result and not blurred to shit
-                       //but most consider this low quality...
-                    GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMagFilter, (int)All.Nearest);
-                    GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMinFilter, (int)All.Nearest);
-                    break;
+                // Write the vertexes
+                for(int i = 0; i < vertList.Count; i++)
+                {
+                    writer.WriteLine(string.Format("v {0} {1} {2}", vertList[i].X, vertList[i].Y, vertList[i].Z));
+                }
+                // Write the uv coords
+                if(uvSetup) {
+                    for (int i = 0; i < bitmapUvArray.Length; i++)
+                    {
+                        writer.WriteLine(string.Format("vt {0} {1}", bitmapUvArray[i].X, bitmapUvArray[i].Y));
+                    }
+                }
+                // Write the faces
+                for(int i = 0; i < allTrianglesArray.Length; i++)
+                {
+                    if(!uvSetup) {
+                        writer.WriteLine(string.Format("f {0} {1} {2}", allTrianglesArray[i].vertexIndices[0] + 1,
+                            allTrianglesArray[i].vertexIndices[1] + 1, allTrianglesArray[i].vertexIndices[2] + 1));
+                    } else {
+                        writer.WriteLine(string.Format("f {0}/{0} {1}/{1} {2}/{2}", allTrianglesArray[i].vertexIndices[0] + 1,
+                            allTrianglesArray[i].vertexIndices[1] + 1, allTrianglesArray[i].vertexIndices[2] + 1));
+                    }
+                }
+                Console.WriteLine(outStream.Name);
+            }
+            
+        }*/
+
+        public void CreateDaeFromCol(string daePath)
+        {
+            // Load and duplicate the example dae
+            string daeString = "";
+            using(StreamReader r = new StreamReader("Resources\\goopFormatExample.dae"))
+            {
+                daeString = r.ReadToEnd();
             }
 
-            if (repeat)
-            {
-                //This will repeat the texture past its bounds set by TexImage2D
-                GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureWrapS, (int)All.Repeat);
-                GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureWrapT, (int)All.Repeat);
+            // Replace the data
+
+            // Vertex data
+            string vertextString = " ";
+            string weightString = "";
+            for (int i = 0; i < vertList.Count; i++) {
+                vertextString += "" + vertList[i].X + " " + vertList[i].Y + " " + vertList[i].Z + " ";
+                weightString += "" + 1 + " ";
             }
-            else
-            {
-                //This will clamp the texture to the edge, so manipulation will result in skewing
-                //It can also be useful for getting rid of repeating texture bits at the borders
-                GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureWrapS, (int)All.ClampToEdge);
-                GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureWrapT, (int)All.ClampToEdge);
+            daeString = daeString.Replace("VERT_DATA", vertextString);
+            daeString = daeString.Replace("VERT_COUNT", "" + vertList.Count);
+            daeString = daeString.Replace("VERT_DOUBLE_COUNT", "" + (vertList.Count * 2));
+            daeString = daeString.Replace("VERT_TRIPLE_COUNT", "" + (vertList.Count * 3));
+            daeString = daeString.Replace("VERT_WEIGHTS", weightString);
+            // Other vert info
+            string otherWeightString = "";
+            for(int i = 0; i < (vertList.Count * 2); i++) {
+                otherWeightString += "0 ";
             }
+            daeString = daeString.Replace("VERT_OTHER_WEIGHTS", otherWeightString);
+            // UV 0 data
+            string uv0String = " ";
+            for (int i = 0; i < bitmapUvArray.Length; i++) {
+                uv0String += "" + bitmapUvArray[i].X + " " + bitmapUvArray[i].Y + " ";
+            }
+            daeString = daeString.Replace("UV0_DATA", uv0String);
+            // UV 1 data
+            string uv1String = " ";
+            for (int i = 0; i < goopUvArray.Length; i++) {
+                uv1String += "" + goopUvArray[i].X + " " + goopUvArray[i].Y + " ";
+            }
+            daeString = daeString.Replace("UV1_DATA", uv1String);
+            // Color0 data
+            string colorString = " ";
+            for (int i = 0; i < goopUvArray.Length; i++)
+            {
+                //colorString += "" + goopUvArray[i].X + " " + goopUvArray[i].Y + " ";
+                colorString += "0 0 0 ";
+            }
+            daeString = daeString.Replace("COLOR_DATA", colorString);
+            // Triangle data
+            string triangleList = "";
+            string triangleVertList = "";
+            for (int i = 0; i < allTrianglesArray.Length; i++) {
+                string triangleString = "" + allTrianglesArray[i].vertexIndices[0] + " " + allTrianglesArray[i].vertexIndices[1] + " " + allTrianglesArray[i].vertexIndices[2] + " ";
+                triangleList += triangleString;
+                triangleVertList += "3 ";
+            }
+            daeString = daeString.Replace("TRIANGLE_DATA", triangleList);
+            daeString = daeString.Replace("TRIANGLE_VERTCOUNTS", triangleVertList);
+            daeString = daeString.Replace("TRIANGLE_COUNT", "" + allTrianglesArray.Length);
 
-            //Creates a definition of a texture object in opengl
-            /* Parameters
-             * Target - Since we are using a 2D image we specify the target Texture2D
-             * MipMap Count / LOD - 0 as we are not using mipmapping at the moment
-             * InternalFormat - The format of the gl texture, Rgba is a base format it works all around
-             * Width;
-             * Height;
-             * Border - must be 0;
-             * 
-             * Format - this is the images format not gl's the format Bgra i believe is only language specific
-             *          C# uses little-endian so you have ARGB on the image A 24 R 16 G 8 B, B is the lowest
-             *          So it gets counted first, as with a language like Java it would be PixelFormat.Rgba
-             *          since Java is big-endian default meaning A is counted first.
-             *          but i could be wrong here it could be cpu specific :P
-             *          
-             * PixelType - The type we are using, eh in short UnsignedByte will just fill each 8 bit till the pixelformat is full
-             *             (don't quote me on that...)
-             *             you can be more specific and say for are RGBA to little-endian BGRA -> PixelType.UnsignedInt8888Reversed
-             *             this will mimic are 32bit uint in little-endian.
-             *             
-             * Data - No data at the moment it will be written with TexSubImage2D
-             */
-            GL.TexImage2D(TextureTarget.Texture2D, 0, PixelInternalFormat.Rgba, bitmap.Width, bitmap.Height, 0, PixelFormat.Bgra, PixelType.UnsignedByte, IntPtr.Zero);
+            // Export
+            // Delete the file in case we already made a local obj model for this path
+            File.Delete(daePath);
+            using (var outStream = File.OpenWrite(daePath))
+            using (var writer = new StreamWriter(outStream))
+            {
+                writer.Write(daeString);
+            }
+        }
 
-            //Load the data from are loaded image into virtual memory so it can be read at runtime
-            System.Drawing.Imaging.BitmapData bitmap_data = bitmap.LockBits(new Rectangle(0, 0, bitmap.Width, bitmap.Height),
-                System.Drawing.Imaging.ImageLockMode.ReadOnly, System.Drawing.Imaging.PixelFormat.Format32bppArgb);
+        public void CreateBmdFromCol(string bmdPath, string resourcePath, Size bmpSize)
+        {
+            if(Properties.Settings.Default.superBmdPath != "null")
+            {
+                string daePath = "modelExport.dae";
+                CreateDaeFromCol(daePath);
 
-            //Writes data to are texture target
-            /* Target;
-             * MipMap;
-             * X Offset - Offset of the data on the x axis
-             * Y Offset - Offset of the data on the y axis
-             * Width;
-             * Height;
-             * Format;
-             * Type;
-             * Data - Now we have data from the loaded bitmap image we can load it into are texture data
-             */
-            GL.TexSubImage2D(TextureTarget.Texture2D, 0, 0, 0, bitmap.Width, bitmap.Height, PixelFormat.Bgra, PixelType.UnsignedByte, bitmap_data.Scan0);
+                string localPath = Directory.GetCurrentDirectory();
 
-            //Release from memory
-            bitmap.UnlockBits(bitmap_data);
+                // Save an image the size of the bmp so the pollution can use it to compile the model correctly
+                string pollutionImgPath = resourcePath + "\\BmpTexture.png";
+                if (File.Exists(pollutionImgPath)) { File.Delete(pollutionImgPath); }
+                Bitmap bmp = new Bitmap(bmpSize.Width, bmpSize.Height);
+                using (Graphics graph = Graphics.FromImage(bmp))
+                {
+                    Rectangle ImageSize = new Rectangle(0, 0, bmpSize.Width, bmpSize.Height);
+                    graph.FillRectangle(Brushes.White, ImageSize);
+                }
+                bmp.Save(pollutionImgPath, System.Drawing.Imaging.ImageFormat.Png);
 
-            //get rid of bitmap object its no longer needed in this method
-            bitmap.Dispose();
-
-            /*Binding to 0 is telling gl to use the default or null texture target
-            *This is useful to remember as you may forget that a texture is targeted
-            *And may overflow to functions that you dont necessarily want to
-            *Say you bind a texture
-            *
-            * Bind(Texture);
-            * DrawObject1();
-            *                <-- Insert Bind(NewTexture) or Bind(0)
-            * DrawObject2();
-            * 
-            * Object2 will use Texture if not set to 0 or another.
-            */
-            GL.BindTexture(TextureTarget.Texture2D, 0);
-
-            return texture;
+                Process p = new Process();
+                p.StartInfo.FileName = Properties.Settings.Default.superBmdPath;
+                p.StartInfo.Arguments = "\"" + localPath + "\\" + daePath + "\" \"" + bmdPath + "\" --mat \"" + resourcePath + "\\goop_materials.json\" --texheader \"" + resourcePath + "\\goop_texheaders.json\" --texfloat32";
+                p.Start();
+                // Don't continue until superbmd has exported the model info
+                p.WaitForExit();
+            }
         }
     }
 }
