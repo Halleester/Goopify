@@ -167,5 +167,17 @@ namespace Goopify.Properties {
                 this["colorPairings"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("D:\\\\Files\\\\Sunshine Hacking\\\\wiiszs\\\\rarc.py")]
+        public string rarcPath {
+            get {
+                return ((string)(this["rarcPath"]));
+            }
+            set {
+                this["rarcPath"] = value;
+            }
+        }
     }
 }

@@ -18,6 +18,8 @@ using System.Windows.Controls;
 using System.Runtime.InteropServices;
 using System.Drawing.Imaging;
 using PixelFormat = OpenTK.Graphics.OpenGL.PixelFormat;
+using System.Diagnostics;
+using System.Threading;
 
 namespace Goopify
 {
@@ -626,7 +628,7 @@ namespace Goopify
             bitmap.Dispose();
 
             GL.BindTexture(TextureTarget.Texture2D, 0);
-
+            
             return texture;
         }
 
@@ -736,6 +738,8 @@ namespace Goopify
                 //GL.UseProgram(shaderProgram.ShaderProgramHandle);
                 visualRegion.pollutionModel.RenderCol(pollution_texture, pollution_texture);
                 //GL.UseProgram(0);
+
+                GL.DeleteTexture(pollution_texture);
             }
 
             // Render the collision object
@@ -1065,7 +1069,7 @@ namespace Goopify
                 glControl1.Refresh();
                 // Save Pollution drawing
                 if(paintedOnVisuals.Length > 0 && paintedOnVisuals.Any(x => x == true)) {
-                    SavePaint();
+                    SavePaint(true);
                     UpdateVisualRegionInfoArea();
                 }
             }
@@ -2208,7 +2212,16 @@ namespace Goopify
                 // This would be accurate to the vanilia game, aka model width/32 (8192x8192 model would become a 256x256 texture
                 float pixelScale = pollutionRegion.texWorldScale;
                 Bitmap heightMap = new Bitmap(pollutionRegion.heightMapWidth, pollutionRegion.heightMapLength);
-                for(int x = 0; x < pollutionRegion.heightMapWidth; x++)
+
+                // Lock the image data
+                BitmapData heightMapData = heightMap.LockBits(new Rectangle(0, 0, heightMap.Width, heightMap.Height), ImageLockMode.ReadWrite, System.Drawing.Imaging.PixelFormat.Format8bppIndexed);
+                // Get the address of the first line.
+                IntPtr ptr = heightMapData.Scan0;
+                // Declare an array to hold the bytes of the bitmap.
+                int bytes = Math.Abs(heightMapData.Stride) * heightMap.Height;
+                byte[] rgbValues = new byte[bytes];
+                // Set the colors for each pixel
+                for (int x = 0; x < pollutionRegion.heightMapWidth; x++)
                 {
                     for(int y = 0; y < pollutionRegion.heightMapLength; y++)
                     {
@@ -2219,9 +2232,16 @@ namespace Goopify
                             colorVal = (int)((topHeight - pollutionRegion.pointYPos) / 40);
                             if(colorVal > 255) { colorVal = 255; }
                         }
-                        heightMap.SetPixel(x, y, Color.FromArgb(colorVal, colorVal, colorVal));
+                        int position = (y * heightMapData.Stride) + (x * System.Drawing.Image.GetPixelFormatSize(heightMapData.PixelFormat) / 8);
+                        rgbValues[position] = (byte)colorVal;
                     }
                 }
+                // Copy the colors to the data
+                Marshal.Copy(ptr, rgbValues, 0, bytes);
+                // Unlock the bits.
+                heightMap.UnlockBits(heightMapData);
+
+
                 pollutionRegion.heightMap = heightMap;
                 //heightMap.Save("C:\\Users\\alexh\\Downloads\\test.png", System.Drawing.Imaging.ImageFormat.Png);
 
@@ -2229,6 +2249,59 @@ namespace Goopify
                 pollutionBmp = (Bitmap)heightMap.Clone();
                 for (int x = 0; x < pollutionBmp.Width; x++) {
                     for (int y = 0; y < pollutionBmp.Height; y++) {
+                        Color gottenColor = pollutionBmp.GetPixel(x, y);
+                        Color pixelColor = gottenColor.R == 255 ? Color.Black : Color.White;
+                        pollutionBmp.SetPixel(x, y, pixelColor);
+                    }
+                }
+                pollutionGraphics = Graphics.FromImage(pollutionBmp);
+            }
+
+            public void CreateRegionHeightmapParallel(string path)
+            {
+                // This would be accurate to the vanilia game, aka model width/32 (8192x8192 model would become a 256x256 texture
+                float pixelScale = pollutionRegion.texWorldScale;
+                Bitmap heightMap = new Bitmap(pollutionRegion.heightMapWidth, pollutionRegion.heightMapLength);
+
+                // Lock the image data
+                BitmapData heightMapData = heightMap.LockBits(new Rectangle(0, 0, heightMap.Width, heightMap.Height), ImageLockMode.ReadWrite, System.Drawing.Imaging.PixelFormat.Format8bppIndexed);
+                // Get the address of the first line.
+                IntPtr ptr = heightMapData.Scan0;
+                // Declare an array to hold the bytes of the bitmap.
+                int bytes = Math.Abs(heightMapData.Stride) * heightMap.Height;
+                byte[] rgbValues = new byte[bytes];
+                // Set the colors for each pixel
+                System.Threading.Tasks.Parallel.For(0, pollutionRegion.heightMapWidth, x =>
+                {
+                    for (int y = 0; y < pollutionRegion.heightMapLength; y++)
+                    {
+                        Vector3 intersectionPoint = new Vector3(pollutionRegion.startXPos + x * pixelScale, pollutionModel.ReturnHighestVertHeight() + 100, pollutionRegion.startZPos + y * pixelScale);
+                        float? topHeight = pollutionModel.GetHighestIntersectionPosition(intersectionPoint);
+                        int colorVal = 255; // White
+                        if (topHeight != null && topHeight >= pollutionRegion.pointYPos)
+                        { // Set the pixel color darker based on height
+                            colorVal = (int)((topHeight - pollutionRegion.pointYPos) / 40);
+                            if (colorVal > 255) { colorVal = 255; }
+                        }
+                        int position = (y * heightMapData.Stride) + (x * System.Drawing.Image.GetPixelFormatSize(heightMapData.PixelFormat) / 8);
+                        rgbValues[position] = (byte)colorVal;
+                    }
+                });
+                // Copy the colors to the data
+                Marshal.Copy(ptr, rgbValues, 0, bytes);
+                // Unlock the bits.
+                heightMap.UnlockBits(heightMapData);
+
+
+                pollutionRegion.heightMap = heightMap;
+                //heightMap.Save("C:\\Users\\alexh\\Downloads\\test.png", System.Drawing.Imaging.ImageFormat.Png);
+
+                // Use the heightmap to create an outline of the pollution and use it as the temp pollution map
+                pollutionBmp = (Bitmap)heightMap.Clone();
+                for (int x = 0; x < pollutionBmp.Width; x++)
+                {
+                    for (int y = 0; y < pollutionBmp.Height; y++)
+                    {
                         Color gottenColor = pollutionBmp.GetPixel(x, y);
                         Color pixelColor = gottenColor.R == 255 ? Color.Black : Color.White;
                         pollutionBmp.SetPixel(x, y, pixelColor);
@@ -2315,9 +2388,9 @@ namespace Goopify
             }
             paintUndoList.Add(savedImages);
             if (paintUndoList.Count > Properties.Settings.Default.paintUndoSize + 1) {
-                paintUndoList.RemoveAt(0);
+                UndoPaintRemoveAt(0);
             }
-            paintRedoList.Clear();
+            RedoPaintClear();
         }
 
         public void UndoPaint()
@@ -2325,7 +2398,7 @@ namespace Goopify
             if (paintUndoList.Count > 1)
             {
                 List<Bitmap> undoImages = paintUndoList[paintUndoList.Count - 1];
-                paintUndoList.RemoveAt(paintUndoList.Count - 1);
+                UndoPaintRemoveAt(paintUndoList.Count - 1);
                 paintRedoList.Add(undoImages);
                 for (int i = 0; i < visualPollutionRegions.Count; i++)
                 {
@@ -2343,7 +2416,7 @@ namespace Goopify
                 }
                 UpdateVisualRegionInfoArea();
                 glControl1.Refresh();
-            } 
+            }
         }
 
         public void RedoPaint()
@@ -2351,7 +2424,7 @@ namespace Goopify
             if (paintRedoList.Count > 0)
             {
                 List<Bitmap> redoImages = paintRedoList[paintRedoList.Count - 1];
-                paintRedoList.RemoveAt(paintRedoList.Count - 1);
+                RedoPaintRemoveAt(paintRedoList.Count - 1);
                 paintUndoList.Add(redoImages);
                 for (int i = 0; i < visualPollutionRegions.Count; i++)
                 {
@@ -2363,15 +2436,42 @@ namespace Goopify
                 }
                 UpdateVisualRegionInfoArea();
                 glControl1.Refresh();
-            } 
+            }
+        }
+
+        public void UndoPaintRemoveAt(int index)
+        {
+            List<Bitmap> undoEntry = paintUndoList[index];
+            foreach(Bitmap undoBitmap in undoEntry) {
+                undoBitmap?.Dispose();
+            }
+            paintUndoList.RemoveAt(index);
+        }
+
+        public void RedoPaintRemoveAt(int index)
+        {
+            List<Bitmap> redoEntry = paintRedoList[index];
+            foreach (Bitmap redoBitmap in redoEntry)
+            {
+                redoBitmap?.Dispose();
+            }
+            paintRedoList.RemoveAt(index);
+        }
+
+        public void RedoPaintClear()
+        {
+            foreach(List<Bitmap> redoEntry in paintRedoList) {
+                foreach (Bitmap redoBitmap in redoEntry) {
+                    redoBitmap?.Dispose();
+                }
+            }
+            paintRedoList.Clear();
         }
 
         private bool ignoreTabChange = true;
-        private void cutRegionsButton_Click(object sender, EventArgs e)
+        private async void cutRegionsButton_Click(object sender, EventArgs e)
         {
-            // Creates a pen for drawing on the bmp image
-            bmpPen = new Pen(Color.Black, 10);
-            bmpPen.StartCap = bmpPen.EndCap = System.Drawing.Drawing2D.LineCap.Round; // Rounds the pen out
+            
 
             if (goopCutRegions.Count > 0)
             {
@@ -2389,41 +2489,73 @@ namespace Goopify
                     }
                 }
                 cutProgressBar.Visible = true;
-                cutProgressBar.Value = 0;
-                float progressRegionSize = 100f / goopCutRegions.Count;
-                float progressValue = 0;
-                // Cut each region, clean up the visuals, setup the uvs, offset the model, and add it to the list
-                int index = 0;
-                foreach (GoopRegionBox regionBox in goopCutRegions)
-                {
-                    Col regionModel = mapCol.SplitModelByLine(regionBox.GetCornerPos(Corner.TopLeft), regionBox.GetCornerPos(Corner.TopRight));
-                    AddToProgress(progressRegionSize / 5, ref progressValue);
-                    regionModel = regionModel.SplitModelByLine(regionBox.GetCornerPos(Corner.TopRight), regionBox.GetCornerPos(Corner.BottomRight));
-                    AddToProgress(progressRegionSize / 5, ref progressValue);
-                    regionModel = regionModel.SplitModelByLine(regionBox.GetCornerPos(Corner.BottomRight), regionBox.GetCornerPos(Corner.BottomLeft));
-                    AddToProgress(progressRegionSize / 5, ref progressValue);
-                    regionModel = regionModel.SplitModelByLine(regionBox.GetCornerPos(Corner.BottomLeft), regionBox.GetCornerPos(Corner.TopLeft));
-                    AddToProgress(progressRegionSize / 5, ref progressValue);
-                    regionModel.CleanupModelForGoop(Properties.Settings.Default.colTypesToRemove, regionBox.height);
-                    AddToProgress(progressRegionSize / 5 * 0.4f, ref progressValue);
-                    regionModel.SetUVsByProjection(regionBox.GetCornerPos(Corner.BottomLeft), regionBox.width, regionBox.length);
-                    AddToProgress(progressRegionSize / 5 * 0.2f, ref progressValue);
-                    VisualPollutionRegion newVisualRegion = new VisualPollutionRegion(regionBox, regionModel);
-                    newVisualRegion.CreateRegionHeightmap("generatedHeightmap" + index + ".png");
-                    AddToProgress(progressRegionSize / 5 * 0.4f, ref progressValue);
-                    visualPollutionRegions.Add(newVisualRegion);
-                    index++;
-                }
-                cutProgressBar.Visible = false;
-                UpdateVisualComboBox();
-                paintingPanel.Visible = true;
-                brushSizeTextBox.Text = "" + bmpPen.Width;
-                paintedOnVisuals = new bool[goopCutRegions.Count];
-                SavePaint(true);
+                cuttingProgress = 0;
+                cutProgressBar.Value = (int)cuttingProgress;
+                // Start the cutting model thread
+                await CutTask();
+                CuttingThreadDone();
             } else {
                 MessageBox.Show("You don't have any goop regions, please create some first!", "Cutting Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 return;
             }
+        }
+
+        Task CutTask()
+        {
+            return Task.Run(() => { CutRegionsThread(); }); 
+        }
+
+        public void CutRegionsThread()
+        {
+            float progressRegionSize = 100f / goopCutRegions.Count;
+            List<VisualPollutionRegion> storedRegions = new List<VisualPollutionRegion>();
+            Console.WriteLine("Starting Cutting Process");
+            long prevMiliseconds = 0;
+            Stopwatch stopWatch = new Stopwatch();
+            stopWatch.Start();
+            for (int i = 0; i < goopCutRegions.Count; i++)
+            {
+                GoopRegionBox regionBox = goopCutRegions[i];
+                // Generates the model
+                Col regionModel = mapCol.SplitModelByLine(regionBox.GetCornerPos(Corner.TopLeft), regionBox.GetCornerPos(Corner.TopRight));
+                AddToProgress(progressRegionSize * 0.2f);
+                regionModel = regionModel.SplitModelByLine(regionBox.GetCornerPos(Corner.TopRight), regionBox.GetCornerPos(Corner.BottomRight));
+                AddToProgress(progressRegionSize * 0.175f);
+                regionModel = regionModel.SplitModelByLine(regionBox.GetCornerPos(Corner.BottomRight), regionBox.GetCornerPos(Corner.BottomLeft));
+                AddToProgress(progressRegionSize * 0.175f);
+                regionModel = regionModel.SplitModelByLine(regionBox.GetCornerPos(Corner.BottomLeft), regionBox.GetCornerPos(Corner.TopLeft));
+                AddToProgress(progressRegionSize * 0.15f);
+                regionModel.CleanupModelForGoop(Properties.Settings.Default.colTypesToRemove, regionBox.height);
+                regionModel.SetUVsByProjection(regionBox.GetCornerPos(Corner.BottomLeft), regionBox.width, regionBox.length);
+                Console.WriteLine("Time for region {1} cut in milliseconds: {0}", stopWatch.ElapsedMilliseconds - prevMiliseconds, i);
+                prevMiliseconds = stopWatch.ElapsedMilliseconds;
+                // Creates the visual region
+                VisualPollutionRegion newVisualRegion = new VisualPollutionRegion(regionBox, regionModel);
+                newVisualRegion.CreateRegionHeightmapParallel("generatedHeightmap" + i + ".png");
+                storedRegions.Add(newVisualRegion);
+                Console.WriteLine("Time for region {1} image in milliseconds: {0}", stopWatch.ElapsedMilliseconds - prevMiliseconds, i);
+                prevMiliseconds = stopWatch.ElapsedMilliseconds;
+                AddToProgress(progressRegionSize * 0.3f);
+            }
+            stopWatch.Stop();
+            Console.WriteLine("Cutting time in milliseconds: {0}", stopWatch.ElapsedMilliseconds);
+            // Cut all models so change the editor to the next state
+            visualPollutionRegions = storedRegions;
+            
+        }
+
+        public void CuttingThreadDone()
+        {
+            // Creates a pen for drawing on the bmp image
+            bmpPen = new Pen(Color.Black, 10);
+            bmpPen.StartCap = bmpPen.EndCap = System.Drawing.Drawing2D.LineCap.Round; // Rounds the pen out
+
+            cutProgressBar.Visible = false;
+            UpdateVisualComboBox();
+            paintingPanel.Visible = true;
+            brushSizeTextBox.Text = "" + bmpPen.Width;
+            paintedOnVisuals = new bool[goopCutRegions.Count];
+            SavePaint(true);
 
             // Setup the info for the settings editor
             ignoreTabChange = false;
@@ -2435,11 +2567,17 @@ namespace Goopify
             glControl1.Refresh();
         }
 
-        private void AddToProgress(float addAmt, ref float sum)
+        delegate void Func();
+        public float cuttingProgress = 0;
+        private void AddToProgress(float addAmt)
         {
-            sum += addAmt;
-            cutProgressBar.Value = (int)Math.Ceiling(sum);
-            cutProgressBar.Refresh();
+            cuttingProgress += addAmt;
+            Func del = delegate
+            {
+                cutProgressBar.Value = (int)Math.Ceiling(cuttingProgress);
+                cutProgressBar.Refresh();
+            };
+            Invoke(del);
         }
 
         private void tabControl1_Selecting(object sender, TabControlCancelEventArgs e)
@@ -2810,7 +2948,7 @@ namespace Goopify
                 }
                 // Draw the graphics onto the pollution bmp
                 visualPollutionRegions[selectedRegions[selectedRegions.Count - 1]].OverwriteBmp(gottenBmp);
-                SavePaint();
+                SavePaint(true);
                 // Refresh info
                 UpdateVisualRegionInfoArea();
                 glControl1.Invalidate();

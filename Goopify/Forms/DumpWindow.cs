@@ -127,5 +127,40 @@ namespace Goopify.Forms
         {
             savePath = saveLocFileBox.Text;
         }
+
+        // Allow dropping ymp file onto box to autofill path
+        private void DumpWindow_DragDrop(object sender, DragEventArgs e)
+        {
+            // Handle FileDrop data.
+            Console.WriteLine("Dropped file");
+            if (e.Data.GetDataPresent(DataFormats.FileDrop))
+            {
+                // Assign the file names to a string array, in 
+                // case the user has selected multiple files.
+                string[] files = (string[])e.Data.GetData(DataFormats.FileDrop);
+                try
+                {
+                    string extension = Path.GetExtension(files[0]);
+                    if (extension == ".ymp")
+                    {
+                        ympPath = files[0];
+                        ympLocFileBox.Text = ympPath;
+
+                        Properties.Settings.Default.dumpYmpDialogRestore = ympPath;
+                        Properties.Settings.Default.Save();
+                    }
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show(ex.Message);
+                    return;
+                }
+            }
+        }
+
+        private void DumpWindow_DragEnter(object sender, DragEventArgs e)
+        {
+            if (e.Data.GetDataPresent(DataFormats.FileDrop)) e.Effect = DragDropEffects.Copy;
+        }
     }
 }

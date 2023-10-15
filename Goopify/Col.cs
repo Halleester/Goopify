@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using OpenTK;
 using System.Linq;
 using System.Diagnostics;
+using System.Collections.Concurrent;
 
 namespace Goopify
 {
@@ -475,6 +476,97 @@ namespace Goopify
             }
         }
 
+        public Col SplitModelByLineParallel(Vector3 pointOne, Vector3 pointTwo, bool returnRight = false)
+        {
+            Col modelCopy = new Col(vertList, allTrianglesArray);
+            ConcurrentBag<Triangle> leftTriangleList = new ConcurrentBag<Triangle>();
+            ConcurrentBag<Triangle> rightTriangleList = new ConcurrentBag<Triangle>();
+
+            System.Threading.Tasks.Parallel.For(0, modelCopy.allTrianglesArray.Length, i =>
+            {
+                bool? vertOneLeft = modelCopy.IsLeftOf(pointOne, pointTwo, modelCopy.vertList[modelCopy.allTrianglesArray[i].vertexIndices[0]]);
+                bool? vertTwoLeft = modelCopy.IsLeftOf(pointOne, pointTwo, modelCopy.vertList[modelCopy.allTrianglesArray[i].vertexIndices[1]]);
+                bool? vertThreeLeft = modelCopy.IsLeftOf(pointOne, pointTwo, modelCopy.vertList[modelCopy.allTrianglesArray[i].vertexIndices[2]]);
+
+                int leftValue = 0;
+                int rightValue = 0;
+
+                if (vertOneLeft == true) { leftValue++; } else if (vertOneLeft == false) { rightValue++; }
+                if (vertTwoLeft == true) { leftValue++; } else if (vertTwoLeft == false) { rightValue++; }
+                if (vertThreeLeft == true) { leftValue++; } else if (vertThreeLeft == false) { rightValue++; }
+
+                if (rightValue == 0) // Triangle is all in the left (might have point on line)
+                {
+                    leftTriangleList.Add(modelCopy.allTrianglesArray[i]);
+                }
+                else if (leftValue == 0) // Triangle is all in the right (might have point on line)
+                {
+                    rightTriangleList.Add(modelCopy.allTrianglesArray[i]);
+                }
+                else // Triangle intersects with the line
+                {
+
+                    if (vertOneLeft != null && vertTwoLeft != null && vertThreeLeft != null) // Not case of a left-intersect-right triangle
+                    {
+                        // One and two on the same side
+                        if (vertOneLeft == vertTwoLeft)
+                        {
+                            Triangle[] splitTriangles = modelCopy.SplitTriangle(0, 1, 2, modelCopy.allTrianglesArray[i], pointOne, pointTwo);
+                            if (vertOneLeft == true)
+                            {
+                                leftTriangleList.Add(splitTriangles[0]);
+                                leftTriangleList.Add(splitTriangles[1]);
+                                rightTriangleList.Add(splitTriangles[2]);
+                            }
+                            else
+                            {
+                                rightTriangleList.Add(splitTriangles[0]);
+                                rightTriangleList.Add(splitTriangles[1]);
+                                leftTriangleList.Add(splitTriangles[2]);
+                            }
+                        }
+                        // Two and three on the same side
+                        if (vertTwoLeft == vertThreeLeft)
+                        {
+                            Triangle[] splitTriangles = modelCopy.SplitTriangle(1, 2, 0, modelCopy.allTrianglesArray[i], pointOne, pointTwo);
+                            if (vertTwoLeft == true)
+                            {
+                                leftTriangleList.Add(splitTriangles[0]);
+                                leftTriangleList.Add(splitTriangles[1]);
+                                rightTriangleList.Add(splitTriangles[2]);
+                            }
+                            else
+                            {
+                                rightTriangleList.Add(splitTriangles[0]);
+                                rightTriangleList.Add(splitTriangles[1]);
+                                leftTriangleList.Add(splitTriangles[2]);
+                            }
+                        }
+                        // Three and one on the same side
+                        if (vertThreeLeft == vertOneLeft)
+                        {
+                            Triangle[] splitTriangles = modelCopy.SplitTriangle(2, 0, 1, modelCopy.allTrianglesArray[i], pointOne, pointTwo);
+                            if (vertThreeLeft == true)
+                            {
+                                leftTriangleList.Add(splitTriangles[0]);
+                                leftTriangleList.Add(splitTriangles[1]);
+                                rightTriangleList.Add(splitTriangles[2]);
+                            }
+                            else
+                            {
+                                rightTriangleList.Add(splitTriangles[0]);
+                                rightTriangleList.Add(splitTriangles[1]);
+                                leftTriangleList.Add(splitTriangles[2]);
+                            }
+                        }
+                    }
+                }
+            });
+            Col cutCol = new Col(modelCopy.vertList, returnRight ? rightTriangleList.ToArray() : leftTriangleList.ToArray());
+            cutCol.CleanUpVerts();
+            return cutCol;
+        }
+
         /// <summary>
         /// Splits the col into two different models 
         /// </summary>
@@ -736,6 +828,58 @@ namespace Goopify
             return null;
         }
 
+        public float? GetHighestIntersectionPositionParallel(Vector3 pointToCheck)
+        {
+            float topHeight = float.MinValue;
+            // TODO: Change that Unit Vector based on the pollution layer type
+            Vector3 rayDirection = -Vector3.UnitY;
+            System.Threading.Tasks.Parallel.For(0, allTrianglesArray.Length, i =>
+            {
+                Triangle triangle = allTrianglesArray[i];
+                Vector3 edge1 = vertList[triangle.vertexIndices[1]] - vertList[triangle.vertexIndices[0]];
+                Vector3 edge2 = vertList[triangle.vertexIndices[2]] - vertList[triangle.vertexIndices[0]];
+
+
+                Vector3 pVec = Vector3.Cross(rayDirection, edge2);
+                float det = Vector3.Dot(edge1, pVec); // Determinant
+
+                //if determinant is near zero, ray lies in plane of triangle otherwise not
+                if (det > -float.Epsilon && det < float.Epsilon) { return; }
+                float invDet = 1.0f / det;
+
+                //calculate distance from p1 to ray origin
+                Vector3 tVec = pointToCheck - vertList[triangle.vertexIndices[0]];
+
+                //Calculate u parameter
+                float u = Vector3.Dot(tVec, pVec) * invDet;
+
+                //Check for ray hit
+                if (u < 0 || u > 1) { return; }
+
+                //Prepare to test v parameter
+                Vector3 qVec = Vector3.Cross(tVec, edge1);
+
+                //Calculate v parameter
+                float v = Vector3.Dot(rayDirection, qVec) * invDet;
+
+                //Check for ray hit
+                if (v < 0 || u + v > 1) { return; }
+
+                float t = Vector3.Dot(edge2, qVec) * invDet;
+                if (t > float.Epsilon) //ray does intersect
+                {
+                    float gottenHeight = (rayDirection * t + pointToCheck).Y;
+                    if (gottenHeight > topHeight) { topHeight = gottenHeight; }
+                }
+            });
+            // Return the height if it exists
+            if (topHeight != float.MinValue)
+            {
+                return topHeight;
+            }
+            return null;
+        }
+
         public class RaycastHitInfo
         {
             public Triangle triangle;
@@ -881,8 +1025,8 @@ namespace Goopify
                     }
                 }
             }
-            Console.WriteLine("Original Vert Count: " + vertList.Count);
-            Console.WriteLine("Cleaned Vert Count: " + cleanedVerts.Count);
+            //Console.WriteLine("Original Vert Count: " + vertList.Count);
+            //Console.WriteLine("Cleaned Vert Count: " + cleanedVerts.Count);
             vertList = new List<Vector3>(cleanedVerts);
         }
 
@@ -1044,7 +1188,7 @@ namespace Goopify
             }
         }
 
-        public void CreateBmdFromCol(string bmdPath, string resourcePath, Size bmpSize)
+        public string CreateBmdFromCol(string bmdPath, string resourcePath, Size bmpSize)
         {
             if(Properties.Settings.Default.superBmdPath != "null")
             {
@@ -1067,10 +1211,17 @@ namespace Goopify
                 Process p = new Process();
                 p.StartInfo.FileName = Properties.Settings.Default.superBmdPath;
                 p.StartInfo.Arguments = "\"" + localPath + "\\" + daePath + "\" \"" + bmdPath + "\" --mat \"" + resourcePath + "\\goop_materials.json\" --texheader \"" + resourcePath + "\\goop_texheaders.json\" --texfloat32";
+                p.StartInfo.UseShellExecute = false;
+                p.StartInfo.RedirectStandardError = true;
+                //p.StartInfo.CreateNoWindow = true;
                 p.Start();
+
+                string errorText = p.StandardError.ReadToEnd();
                 // Don't continue until superbmd has exported the model info
                 p.WaitForExit();
+                return errorText;
             }
+            return "SuperBMD path not setup!";
         }
     }
 }

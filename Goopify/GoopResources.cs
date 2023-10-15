@@ -118,9 +118,29 @@ namespace Goopify
                 Directory.CreateDirectory(resourcePath);
             }
 
+            string szsExtractPath = "";
             for (int i = 0; i < goopColorLevels.Length; i++)
             {
-                string pollutionPath = scenePath + "\\" + goopColorLevels[i] + pollutionFolderPath;
+                if(szsExtractPath != "") {
+                    Directory.Delete(szsExtractPath, true);
+                    szsExtractPath = "";
+                }
+
+                string levelPath = scenePath + "\\" + goopColorLevels[i];
+                // Check if the level is already extracted, otherwise check for szs and unzip it
+                if(!Directory.Exists(levelPath))
+                {
+                    // Check if szs exists
+                    string szsPath = levelPath + ".szs";
+                    if (!File.Exists(szsPath)) {
+                        importErrors.Add(goopColorLevels[i] + ": No scene folder or SZS found, import skipped");
+                        continue;
+                    }
+                    // Extract the szs
+                    szsExtractPath = ExtractSzs(levelPath);
+                }
+
+                string pollutionPath = levelPath + pollutionFolderPath;
                 string[] particleStrings = GetParticleStrings((PredefinedGoopColor)i);
 
                 if(!Directory.Exists(pollutionPath))
@@ -198,6 +218,9 @@ namespace Goopify
                 } else {
                     importErrors.Add(goopColorLevels[i] + ": matching btk file not found in the Goopify resource folder");
                 }
+            }
+            if(szsExtractPath != "") {
+                Directory.Delete(szsExtractPath, true);
             }
             // Show if the import was fully sucessful or not
             if(importErrors.Count > 0) {
@@ -313,6 +336,21 @@ namespace Goopify
             }
             File.Copy(goopPath, path);
             return true;
+        }
+
+        public static string ExtractSzs(string levelPath)
+        {
+            Process p = new Process();
+            p.StartInfo.FileName = Properties.Settings.Default.rarcPath;
+            p.StartInfo.Arguments = "\"" + levelPath + ".szs\" \"" + levelPath + "\"";
+            p.StartInfo.UseShellExecute = true;
+            p.StartInfo.CreateNoWindow = true;
+            p.Start();
+            /*using (StreamReader reader = p.StandardOutput) {
+                string result = reader.ReadToEnd();
+            }*/
+            p.WaitForExit();
+            return levelPath;
         }
     }
 }

@@ -144,6 +144,7 @@ namespace Goopify.Forms
             // 
             // DumpWindow
             // 
+            this.AllowDrop = true;
             this.AutoScaleDimensions = new System.Drawing.SizeF(9F, 20F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(46)))), ((int)(((byte)(51)))), ((int)(((byte)(73)))));
@@ -162,6 +163,8 @@ namespace Goopify.Forms
             this.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
             this.Name = "DumpWindow";
             this.Text = "Goopify (Extract)";
+            this.DragDrop += new System.Windows.Forms.DragEventHandler(this.DumpWindow_DragDrop);
+            this.DragEnter += new System.Windows.Forms.DragEventHandler(this.DumpWindow_DragEnter);
             this.ResumeLayout(false);
             this.PerformLayout();
 

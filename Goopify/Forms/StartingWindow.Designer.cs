@@ -62,6 +62,7 @@ namespace Goopify
             // 
             this.editGoopmapButton.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(60)))), ((int)(((byte)(66)))), ((int)(((byte)(95)))));
             this.editGoopmapButton.Cursor = System.Windows.Forms.Cursors.Default;
+            this.editGoopmapButton.Enabled = false;
             this.editGoopmapButton.FlatAppearance.BorderColor = System.Drawing.Color.FromArgb(((int)(((byte)(60)))), ((int)(((byte)(66)))), ((int)(((byte)(95)))));
             this.editGoopmapButton.FlatAppearance.BorderSize = 0;
             this.editGoopmapButton.FlatStyle = System.Windows.Forms.FlatStyle.Flat;

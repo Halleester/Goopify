@@ -106,6 +106,10 @@ namespace Goopify
             // Setup goop resources
             if(!GoopResources.AreResourcesGotten())
             {
+                // Ask for rarc python path first
+
+
+                MessageBox.Show("Please extract your base SMS iso and select your \"scene\" folder.", "Goopify Setup");
                 // Get the scene folder to extract resources
                 CommonOpenFileDialog folderDialogue = new CommonOpenFileDialog();
                 folderDialogue.IsFolderPicker = true;

@@ -48,5 +48,8 @@
     <Setting Name="colorPairings" Type="System.String" Scope="User">
       <Value Profile="(Default)" />
     </Setting>
+    <Setting Name="rarcPath" Type="System.String" Scope="User">
+      <Value Profile="(Default)">D:\\Files\\Sunshine Hacking\\wiiszs\\rarc.py</Value>
+    </Setting>
   </Settings>
 </SettingsFile>
