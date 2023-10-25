@@ -51,5 +51,17 @@
     <Setting Name="rarcPath" Type="System.String" Scope="User">
       <Value Profile="(Default)">D:\\Files\\Sunshine Hacking\\wiiszs\\rarc.py</Value>
     </Setting>
+    <Setting Name="snapToRegionEdge" Type="System.Boolean" Scope="User">
+      <Value Profile="(Default)">False</Value>
+    </Setting>
+    <Setting Name="snapToRegionCorner" Type="System.Boolean" Scope="User">
+      <Value Profile="(Default)">False</Value>
+    </Setting>
+    <Setting Name="snapToGrid" Type="System.Boolean" Scope="User">
+      <Value Profile="(Default)">True</Value>
+    </Setting>
+    <Setting Name="snapInterval" Type="System.Int32" Scope="User">
+      <Value Profile="(Default)">64</Value>
+    </Setting>
   </Settings>
 </SettingsFile>

@@ -83,3 +83,4 @@ C:\Users\alexh\source\repos\Goopify\Goopify\bin\Debug\Build\System.ValueTuple.xm
 C:\Users\alexh\source\repos\Goopify\Goopify\obj\Debug\Goopify.PropertiesSubform.resources
 C:\Users\alexh\source\repos\Goopify\Goopify\obj\Debug\Goopify.Forms.ToolForms.GuideSubform.resources
 C:\Users\alexh\source\repos\Goopify\Goopify\bin\Debug\Build\Resources\goopFormatExample.dae
+C:\Users\alexh\source\repos\Goopify\Goopify\obj\Debug\Goopify.Forms.ToolForms.SnapSettingsSubform.resources

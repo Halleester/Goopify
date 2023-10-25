@@ -36,14 +36,6 @@
             this.exitToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.editToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.snapSettingsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.snapTypeToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.noSnappingToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.snapToGridToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.snapToToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.globalSnappingToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.snapToPowersOf2ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.noSnappinguntestedToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.setGridSizeToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.propertiesToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.helpToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.guideToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
@@ -121,7 +113,6 @@
             this.finishButton = new System.Windows.Forms.Button();
             this.editorTooltip = new System.Windows.Forms.ToolTip(this.components);
             this.mainWindowBindingSource = new System.Windows.Forms.BindingSource(this.components);
-            this.toolStripTextBox1 = new System.Windows.Forms.ToolStripTextBox();
             this.menuStrip1.SuspendLayout();
             this.overallLayoutPanel.SuspendLayout();
             this.editorPanel.SuspendLayout();
@@ -162,7 +153,7 @@
             this.helpToolStripMenuItem});
             this.menuStrip1.Location = new System.Drawing.Point(0, 0);
             this.menuStrip1.Name = "menuStrip1";
-            this.menuStrip1.Size = new System.Drawing.Size(1662, 33);
+            this.menuStrip1.Size = new System.Drawing.Size(1662, 36);
             this.menuStrip1.TabIndex = 0;
             this.menuStrip1.Text = "menuStrip1";
             // 
@@ -172,7 +163,7 @@
             this.backToMenuToolStripMenuItem,
             this.exitToolStripMenuItem});
             this.fileToolStripMenuItem.Name = "fileToolStripMenuItem";
-            this.fileToolStripMenuItem.Size = new System.Drawing.Size(54, 29);
+            this.fileToolStripMenuItem.Size = new System.Drawing.Size(54, 30);
             this.fileToolStripMenuItem.Text = "File";
             // 
             // backToMenuToolStripMenuItem
@@ -193,83 +184,20 @@
             this.snapSettingsToolStripMenuItem,
             this.propertiesToolStripMenuItem});
             this.editToolStripMenuItem.Name = "editToolStripMenuItem";
-            this.editToolStripMenuItem.Size = new System.Drawing.Size(58, 29);
+            this.editToolStripMenuItem.Size = new System.Drawing.Size(58, 30);
             this.editToolStripMenuItem.Text = "Edit";
             // 
             // snapSettingsToolStripMenuItem
             // 
-            this.snapSettingsToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.snapTypeToolStripMenuItem,
-            this.globalSnappingToolStripMenuItem,
-            this.setGridSizeToolStripMenuItem});
             this.snapSettingsToolStripMenuItem.Name = "snapSettingsToolStripMenuItem";
-            this.snapSettingsToolStripMenuItem.Size = new System.Drawing.Size(270, 34);
-            this.snapSettingsToolStripMenuItem.Text = "Snap Settings";
-            // 
-            // snapTypeToolStripMenuItem
-            // 
-            this.snapTypeToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.noSnappingToolStripMenuItem,
-            this.snapToGridToolStripMenuItem,
-            this.snapToToolStripMenuItem,
-            this.toolStripTextBox1});
-            this.snapTypeToolStripMenuItem.Name = "snapTypeToolStripMenuItem";
-            this.snapTypeToolStripMenuItem.Size = new System.Drawing.Size(270, 34);
-            this.snapTypeToolStripMenuItem.Text = "Position Snapping";
-            // 
-            // noSnappingToolStripMenuItem
-            // 
-            this.noSnappingToolStripMenuItem.Checked = true;
-            this.noSnappingToolStripMenuItem.CheckState = System.Windows.Forms.CheckState.Checked;
-            this.noSnappingToolStripMenuItem.Name = "noSnappingToolStripMenuItem";
-            this.noSnappingToolStripMenuItem.Size = new System.Drawing.Size(270, 34);
-            this.noSnappingToolStripMenuItem.Text = "No Snapping";
-            // 
-            // snapToGridToolStripMenuItem
-            // 
-            this.snapToGridToolStripMenuItem.Name = "snapToGridToolStripMenuItem";
-            this.snapToGridToolStripMenuItem.Size = new System.Drawing.Size(270, 34);
-            this.snapToGridToolStripMenuItem.Text = "Snap to Grid";
-            // 
-            // snapToToolStripMenuItem
-            // 
-            this.snapToToolStripMenuItem.Name = "snapToToolStripMenuItem";
-            this.snapToToolStripMenuItem.Size = new System.Drawing.Size(270, 34);
-            this.snapToToolStripMenuItem.Text = "Snap to Regions";
-            // 
-            // globalSnappingToolStripMenuItem
-            // 
-            this.globalSnappingToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.snapToPowersOf2ToolStripMenuItem,
-            this.noSnappinguntestedToolStripMenuItem});
-            this.globalSnappingToolStripMenuItem.Name = "globalSnappingToolStripMenuItem";
-            this.globalSnappingToolStripMenuItem.Size = new System.Drawing.Size(270, 34);
-            this.globalSnappingToolStripMenuItem.Text = "Size Snapping";
-            // 
-            // snapToPowersOf2ToolStripMenuItem
-            // 
-            this.snapToPowersOf2ToolStripMenuItem.Checked = true;
-            this.snapToPowersOf2ToolStripMenuItem.CheckState = System.Windows.Forms.CheckState.Checked;
-            this.snapToPowersOf2ToolStripMenuItem.Name = "snapToPowersOf2ToolStripMenuItem";
-            this.snapToPowersOf2ToolStripMenuItem.Size = new System.Drawing.Size(303, 34);
-            this.snapToPowersOf2ToolStripMenuItem.Text = "Powers of 2";
-            // 
-            // noSnappinguntestedToolStripMenuItem
-            // 
-            this.noSnappinguntestedToolStripMenuItem.Name = "noSnappinguntestedToolStripMenuItem";
-            this.noSnappinguntestedToolStripMenuItem.Size = new System.Drawing.Size(303, 34);
-            this.noSnappinguntestedToolStripMenuItem.Text = "No Snapping (untested)";
-            // 
-            // setGridSizeToolStripMenuItem
-            // 
-            this.setGridSizeToolStripMenuItem.Name = "setGridSizeToolStripMenuItem";
-            this.setGridSizeToolStripMenuItem.Size = new System.Drawing.Size(270, 34);
-            this.setGridSizeToolStripMenuItem.Text = "Set Grid Size";
+            this.snapSettingsToolStripMenuItem.Size = new System.Drawing.Size(235, 34);
+            this.snapSettingsToolStripMenuItem.Text = "Snap Settings...";
+            this.snapSettingsToolStripMenuItem.Click += new System.EventHandler(this.snapSettingsToolStripMenuItem_Click);
             // 
             // propertiesToolStripMenuItem
             // 
             this.propertiesToolStripMenuItem.Name = "propertiesToolStripMenuItem";
-            this.propertiesToolStripMenuItem.Size = new System.Drawing.Size(270, 34);
+            this.propertiesToolStripMenuItem.Size = new System.Drawing.Size(235, 34);
             this.propertiesToolStripMenuItem.Text = "Properties";
             this.propertiesToolStripMenuItem.Click += new System.EventHandler(this.propertiesToolStripMenuItem_Click);
             // 
@@ -282,36 +210,36 @@
             this.toolStripSeparator1,
             this.aboutToolStripMenuItem});
             this.helpToolStripMenuItem.Name = "helpToolStripMenuItem";
-            this.helpToolStripMenuItem.Size = new System.Drawing.Size(65, 29);
+            this.helpToolStripMenuItem.Size = new System.Drawing.Size(65, 30);
             this.helpToolStripMenuItem.Text = "Help";
             // 
             // guideToolStripMenuItem
             // 
             this.guideToolStripMenuItem.Name = "guideToolStripMenuItem";
-            this.guideToolStripMenuItem.Size = new System.Drawing.Size(270, 34);
+            this.guideToolStripMenuItem.Size = new System.Drawing.Size(213, 34);
             this.guideToolStripMenuItem.Text = "Guide";
             // 
             // toolStripSeparator2
             // 
             this.toolStripSeparator2.Name = "toolStripSeparator2";
-            this.toolStripSeparator2.Size = new System.Drawing.Size(267, 6);
+            this.toolStripSeparator2.Size = new System.Drawing.Size(210, 6);
             // 
             // githubRepoToolStripMenuItem
             // 
             this.githubRepoToolStripMenuItem.Name = "githubRepoToolStripMenuItem";
-            this.githubRepoToolStripMenuItem.Size = new System.Drawing.Size(270, 34);
+            this.githubRepoToolStripMenuItem.Size = new System.Drawing.Size(213, 34);
             this.githubRepoToolStripMenuItem.Text = "Github Repo";
             this.githubRepoToolStripMenuItem.Click += new System.EventHandler(this.githubRepoToolStripMenuItem_Click);
             // 
             // toolStripSeparator1
             // 
             this.toolStripSeparator1.Name = "toolStripSeparator1";
-            this.toolStripSeparator1.Size = new System.Drawing.Size(267, 6);
+            this.toolStripSeparator1.Size = new System.Drawing.Size(210, 6);
             // 
             // aboutToolStripMenuItem
             // 
             this.aboutToolStripMenuItem.Name = "aboutToolStripMenuItem";
-            this.aboutToolStripMenuItem.Size = new System.Drawing.Size(270, 34);
+            this.aboutToolStripMenuItem.Size = new System.Drawing.Size(213, 34);
             this.aboutToolStripMenuItem.Text = "Credits";
             // 
             // overallLayoutPanel
@@ -322,13 +250,13 @@
             this.overallLayoutPanel.Controls.Add(this.editorPanel, 1, 0);
             this.overallLayoutPanel.Controls.Add(this.tabControl1, 0, 0);
             this.overallLayoutPanel.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.overallLayoutPanel.Location = new System.Drawing.Point(0, 33);
+            this.overallLayoutPanel.Location = new System.Drawing.Point(0, 36);
             this.overallLayoutPanel.Margin = new System.Windows.Forms.Padding(0);
             this.overallLayoutPanel.Name = "overallLayoutPanel";
             this.overallLayoutPanel.RowCount = 1;
             this.overallLayoutPanel.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
             this.overallLayoutPanel.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 916F));
-            this.overallLayoutPanel.Size = new System.Drawing.Size(1662, 919);
+            this.overallLayoutPanel.Size = new System.Drawing.Size(1662, 916);
             this.overallLayoutPanel.TabIndex = 1;
             // 
             // editorPanel
@@ -342,7 +270,7 @@
             this.editorPanel.Location = new System.Drawing.Point(330, 0);
             this.editorPanel.Margin = new System.Windows.Forms.Padding(0);
             this.editorPanel.Name = "editorPanel";
-            this.editorPanel.Size = new System.Drawing.Size(1332, 919);
+            this.editorPanel.Size = new System.Drawing.Size(1332, 916);
             this.editorPanel.TabIndex = 2;
             // 
             // cutProgressBar
@@ -450,7 +378,7 @@
             this.glControl1.Location = new System.Drawing.Point(0, 0);
             this.glControl1.Margin = new System.Windows.Forms.Padding(0);
             this.glControl1.Name = "glControl1";
-            this.glControl1.Size = new System.Drawing.Size(1332, 919);
+            this.glControl1.Size = new System.Drawing.Size(1332, 916);
             this.glControl1.TabIndex = 1;
             this.glControl1.VSync = false;
             this.glControl1.Load += new System.EventHandler(this.glControl1_Load);
@@ -1342,12 +1270,6 @@
             // 
             this.mainWindowBindingSource.DataSource = typeof(Goopify.EditorWindow);
             // 
-            // toolStripTextBox1
-            // 
-            this.toolStripTextBox1.Font = new System.Drawing.Font("Segoe UI", 9F);
-            this.toolStripTextBox1.Name = "toolStripTextBox1";
-            this.toolStripTextBox1.Size = new System.Drawing.Size(100, 31);
-            // 
             // EditorWindow
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(9F, 20F);
@@ -1431,12 +1353,6 @@
         private System.Windows.Forms.ToolStripSeparator toolStripSeparator1;
         private System.Windows.Forms.ToolStripMenuItem aboutToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem exitToolStripMenuItem;
-        private System.Windows.Forms.ToolStripMenuItem snapSettingsToolStripMenuItem;
-        private System.Windows.Forms.ToolStripMenuItem snapTypeToolStripMenuItem;
-        private System.Windows.Forms.ToolStripMenuItem noSnappingToolStripMenuItem;
-        private System.Windows.Forms.ToolStripMenuItem snapToGridToolStripMenuItem;
-        private System.Windows.Forms.ToolStripMenuItem snapToToolStripMenuItem;
-        private System.Windows.Forms.ToolStripMenuItem setGridSizeToolStripMenuItem;
         private System.Windows.Forms.TabControl tabControl1;
         private System.Windows.Forms.TabPage tabPage1;
         private System.Windows.Forms.TabPage tabPage2;
@@ -1473,9 +1389,6 @@
         private System.Windows.Forms.Label label10;
         private System.Windows.Forms.Button deleteRegionButton;
         private System.Windows.Forms.Label regionTypeLabel;
-        private System.Windows.Forms.ToolStripMenuItem globalSnappingToolStripMenuItem;
-        private System.Windows.Forms.ToolStripMenuItem snapToPowersOf2ToolStripMenuItem;
-        private System.Windows.Forms.ToolStripMenuItem noSnappinguntestedToolStripMenuItem;
         private System.Windows.Forms.NumericUpDown regionHeight;
         private System.Windows.Forms.Label label20;
         private System.Windows.Forms.CheckBox autoHeightCheckBox;
@@ -1507,7 +1420,7 @@
         private System.Windows.Forms.ProgressBar cutProgressBar;
         private System.Windows.Forms.ToolStripMenuItem guideToolStripMenuItem;
         private System.Windows.Forms.ToolStripSeparator toolStripSeparator2;
-        private System.Windows.Forms.ToolStripTextBox toolStripTextBox1;
+        private System.Windows.Forms.ToolStripMenuItem snapSettingsToolStripMenuItem;
     }
 }
 

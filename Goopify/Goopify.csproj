@@ -109,6 +109,12 @@
     <Compile Include="Forms\ToolForms\GuideSubform.Designer.cs">
       <DependentUpon>GuideSubform.cs</DependentUpon>
     </Compile>
+    <Compile Include="Forms\ToolForms\SnapSettingsSubform.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Forms\ToolForms\SnapSettingsSubform.Designer.cs">
+      <DependentUpon>SnapSettingsSubform.cs</DependentUpon>
+    </Compile>
     <Compile Include="GoopifyEditorManager.cs" />
     <Compile Include="GoopResources.cs" />
     <Compile Include="PollutionMap.cs" />
@@ -148,6 +154,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Forms\ToolForms\GuideSubform.resx">
       <DependentUpon>GuideSubform.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Forms\ToolForms\SnapSettingsSubform.resx">
+      <DependentUpon>SnapSettingsSubform.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>

@@ -20,6 +20,7 @@ using System.Drawing.Imaging;
 using PixelFormat = OpenTK.Graphics.OpenGL.PixelFormat;
 using System.Diagnostics;
 using System.Threading;
+using Goopify.Forms.ToolForms;
 
 namespace Goopify
 {
@@ -311,18 +312,107 @@ namespace Goopify
         private Stack<RegionState> redoStack = new Stack<RegionState>();
 
         // Snapping settings (TODO: allow for setting changes for this)
-        public bool snapPositions = true;
-        public float snapInterval = 100f;
-        public bool snapRegionSize = true;
+        public class SnapSettings
+        {
+            public bool snapToRegionEdge = false;
+            public bool snapToRegionCorner = false;
+
+            public bool snapToGrid = true;
+            public int snapInterval = 64;
+
+            public bool resizeRegionToPower = true;
+
+            public SnapSettings() {
+                snapToRegionEdge = Properties.Settings.Default.snapToRegionEdge;
+                snapToRegionCorner = Properties.Settings.Default.snapToRegionCorner;
+
+                snapToGrid = Properties.Settings.Default.snapToGrid;
+                snapInterval = Properties.Settings.Default.snapInterval;
+            }
+
+            public void SettingsChanged()
+            {
+                Properties.Settings.Default.snapToRegionEdge = snapToRegionEdge;
+                Properties.Settings.Default.snapToRegionCorner = snapToRegionCorner;
+
+                Properties.Settings.Default.snapToGrid = snapToGrid;
+                Properties.Settings.Default.snapInterval = snapInterval;
+
+                Properties.Settings.Default.Save();
+            }
+        }
+        public SnapSettings snapSettings = new SnapSettings();
+        public float snapRange = 2048f;
+
+        public Vector3[] storedCorners = new Vector3[8];
+        // Tries to snap to grid, then region edge, then region corner
+        public Vector3 GetSnapPoint(Vector3 worldPoint)
+        {
+            Vector3 modifiedPoint = worldPoint;
+            // Grid snapping
+            if (snapSettings.snapToGrid) {
+                modifiedPoint = new Vector3(RoundToInterval(worldPoint.X), RoundToInterval(worldPoint.Y), RoundToInterval(worldPoint.Z));
+            }
+            // Snap to corner/edge only if moving one region
+            if(selectedRegions.Count == 1 && (snapSettings.snapToRegionCorner || snapSettings.snapToRegionEdge)) {
+                Vector3? edgeSnapPos = null;
+                float edgeMinDist = snapRange;
+                Vector3? cornerSnapPos = null;
+                float cornerMinDist = snapRange;
+                for (int i = 0; i < goopCutRegions.Count; i++) {
+                    if(i == selectedRegions[0]) { continue; } // Don't check if can snap to self
+
+                    // Snap to corner logic
+                    if (snapSettings.snapToRegionCorner) { 
+                        // Check distance between each corner of selected and current region
+                        for(int x = 0; x < 4; x++) {
+                            for(int y = 0; y < 4; y++) {
+                                Vector3 otherCorner = goopCutRegions[i].GetCornerPos((Corner)x);
+                                otherCorner.Y = 20000;
+                                Vector3 selectedCorner = goopCutRegions[selectedRegions[0]].GetCornerPos((Corner)y);
+                                selectedCorner.Y = 20000;
+                                storedCorners[x] = otherCorner;
+                                storedCorners[4 + y] = selectedCorner;
+                                float cornerDist = Vector3.Distance(otherCorner, selectedCorner);
+                                // Save the position we need to move the cursor to if this distance is the smallest
+                                if(cornerDist < cornerMinDist) {
+                                    cornerMinDist = cornerDist;
+                                    cornerSnapPos = selectedCorner - otherCorner;
+                                }
+                            }
+                        }
+                    }
+
+                    // Snap to edge logic
+                    if (snapSettings.snapToRegionEdge) { 
+
+                    }
+                }
+                if(cornerSnapPos != null) {
+                    modifiedPoint = goopCutRegions[selectedRegions[0]].GetCornerPos(Corner.TopLeft) - cornerSnapPos.Value;
+                }
+            }
+            return modifiedPoint;
+        }
 
         public float RoundToInterval(float i)
         {
-            return ((float)Math.Round(i / snapInterval)) * snapInterval;
+            return ((float)Math.Round(i / snapSettings.snapInterval)) * snapSettings.snapInterval;
         }
 
         public int RoundToNearestPower(float num)
         {
             return 1 << (int)(BitConverter.DoubleToInt64Bits(num + num/3) >> 52) - 1023;
+        }
+
+        // Displays the snap settings window when the menuStripItem is clicked
+        private SnapSettingsSubform snapSettingsForm;
+        private void snapSettingsToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            if(snapSettingsForm == null) {
+                snapSettingsForm = new SnapSettingsSubform(this);
+            }
+            snapSettingsForm.Show();
         }
 
         // Main functions
@@ -895,12 +985,16 @@ namespace Goopify
                 }
             }
 
-            // Draw out mouse click(for testing)
-            // Draw box verts
-            /*GL.PointSize(8);
+            // Draw out corner points of moving regions (for testing)
+            GL.PointSize(12);
             GL.Begin(PrimitiveType.Points);
 
-            GL.Color4(Color.Gray);
+            for(int i = 0; i < 8; i++)
+            {
+                if(i < 4) { GL.Color4(Color.Orange); } else { GL.Color4(Color.Purple); }
+                GL.Vertex3(storedCorners[i]);
+            }
+            /*GL.Color4(Color.Gray);
             GL.Vertex3(testClickPos);
             GL.PointSize(10);
             GL.Color4(Color.BlueViolet);
@@ -912,9 +1006,9 @@ namespace Goopify
 
             GL.Begin(PrimitiveType.Lines);
 
-            DrawGlLine(testClickPos1, testClickPos2, Color.Orange);
+            DrawGlLine(testClickPos1, testClickPos2, Color.Orange);*/
 
-            GL.End();*/
+            GL.End();
 
             editorCamPosLabel.Text = "Cam Pos: " + (cameraPosition / matrixZoomAmount);
             editorCamPosLabel.Refresh();
@@ -1162,10 +1256,9 @@ namespace Goopify
 
                 Vector3 worldPos = isOrthographic ? ScreenToWorld(e.X, e.Y) : cameraPosition/matrixZoomAmount;
                 Vector3 direction = isOrthographic ? -Vector3.UnitY : Vector3.Normalize(ScreenToWorldNormal(e.X, e.Y) - worldPos);
-                if (snapPositions && !onVisuals)
-                {
-                    worldPos = new Vector3(RoundToInterval(worldPos.X), RoundToInterval(worldPos.Y), RoundToInterval(worldPos.Z));
-                }
+                /*if (!onVisuals) {
+                    worldPos = GetSnapPoint(worldPos);
+                }*/
                 Console.WriteLine(worldPos);
 
                 if(mouseDifferent)
@@ -1212,7 +1305,9 @@ namespace Goopify
             {
                 for (int i = 0; i < selectedRegions.Count; i++)
                 {
-                    goopCutRegions[selectedRegions[i]].startPos = new Vector3(mouseWorldPos.X, 0, mouseWorldPos.Z) + selectedRegionOffset[i];
+                    Vector3 newStartPos = new Vector3(mouseWorldPos.X, 0, mouseWorldPos.Z) + selectedRegionOffset[i];
+                    newStartPos = GetSnapPoint(newStartPos);
+                    goopCutRegions[selectedRegions[i]].startPos = newStartPos;
                 }
                 glControl1.Refresh();
             }
@@ -1226,7 +1321,7 @@ namespace Goopify
                     case Corner.TopLeft:
                         widthDifference = resizeGoopBoxReference.startPos.X - mouseWorldPos.X - selectedRegionOffset[0].X;
                         lengthDifference = resizeGoopBoxReference.startPos.Z - mouseWorldPos.Z - selectedRegionOffset[0].Z;
-                        if (snapRegionSize)
+                        if (snapSettings.resizeRegionToPower)
                         { // Rounds to power of 2s since that's the sizes all the ingame regions use
                             widthDifference = RoundToNearestPower(Math.Abs(resizeGoopBoxReference.width + widthDifference)) - resizeGoopBoxReference.width;
                             lengthDifference = RoundToNearestPower(Math.Abs(resizeGoopBoxReference.length + lengthDifference)) - resizeGoopBoxReference.length;
@@ -1239,7 +1334,7 @@ namespace Goopify
                     case Corner.TopRight:
                         widthDifference = resizeGoopBoxReference.startPos.X - mouseWorldPos.X - selectedRegionOffset[0].X - resizeGoopBoxReference.width;
                         lengthDifference = resizeGoopBoxReference.startPos.Z - mouseWorldPos.Z - selectedRegionOffset[0].Z;
-                        if (snapRegionSize)
+                        if (snapSettings.resizeRegionToPower)
                         { // Rounds to power of 2s since that's the sizes all the ingame regions use
                             widthDifference = Math.Sign(widthDifference) * RoundToNearestPower(Math.Abs(widthDifference));
                             lengthDifference = RoundToNearestPower(Math.Abs(resizeGoopBoxReference.length + lengthDifference)) - resizeGoopBoxReference.length;
@@ -1251,7 +1346,7 @@ namespace Goopify
                     case Corner.BottomRight:
                         widthDifference = resizeGoopBoxReference.startPos.X - mouseWorldPos.X - selectedRegionOffset[0].X - resizeGoopBoxReference.width;
                         lengthDifference = resizeGoopBoxReference.startPos.Z - mouseWorldPos.Z - selectedRegionOffset[0].Z - resizeGoopBoxReference.length;
-                        if (snapRegionSize)
+                        if (snapSettings.resizeRegionToPower)
                         { // Rounds to power of 2s since that's the sizes all the ingame regions use
                             widthDifference = Math.Sign(widthDifference) * RoundToNearestPower(Math.Abs(widthDifference));
                             lengthDifference = Math.Sign(lengthDifference) * RoundToNearestPower(Math.Abs(lengthDifference));
@@ -1262,7 +1357,7 @@ namespace Goopify
                     case Corner.BottomLeft:
                         widthDifference = resizeGoopBoxReference.startPos.X - mouseWorldPos.X - selectedRegionOffset[0].X;
                         lengthDifference = resizeGoopBoxReference.startPos.Z - mouseWorldPos.Z - selectedRegionOffset[0].Z - resizeGoopBoxReference.length;
-                        if (snapRegionSize)
+                        if (snapSettings.resizeRegionToPower)
                         { // Rounds to power of 2s since that's the sizes all the ingame regions use
                             widthDifference = RoundToNearestPower(Math.Abs(resizeGoopBoxReference.width + widthDifference)) - resizeGoopBoxReference.width;
                             lengthDifference = Math.Sign(lengthDifference) * RoundToNearestPower(Math.Abs(lengthDifference));
@@ -1559,10 +1654,7 @@ namespace Goopify
             // Update the offsets of all selected boxes based on mouse click pos
             foreach(int index in selectedRegions)
             {
-                if (snapPositions)
-                {
-                    mouseWorldPos = new Vector3(RoundToInterval(mouseWorldPos.X), RoundToInterval(mouseWorldPos.Y), RoundToInterval(mouseWorldPos.Z));
-                }
+                //mouseWorldPos = GetSnapPoint(mouseWorldPos);
                 selectedRegionOffset.Add(goopCutRegions[index].startPos - new Vector3(mouseWorldPos.X, 0, mouseWorldPos.Z));
             }
 
@@ -2247,13 +2339,19 @@ namespace Goopify
 
                 // Use the heightmap to create an outline of the pollution and use it as the temp pollution map
                 pollutionBmp = (Bitmap)heightMap.Clone();
-                for (int x = 0; x < pollutionBmp.Width; x++) {
-                    for (int y = 0; y < pollutionBmp.Height; y++) {
-                        Color gottenColor = pollutionBmp.GetPixel(x, y);
-                        Color pixelColor = gottenColor.R == 255 ? Color.Black : Color.White;
-                        pollutionBmp.SetPixel(x, y, pixelColor);
-                    }
+                // Lock the image data
+                BitmapData pollutionBmpData = heightMap.LockBits(new Rectangle(0, 0, pollutionBmp.Width, pollutionBmp.Height), ImageLockMode.ReadWrite, System.Drawing.Imaging.PixelFormat.Format8bppIndexed);
+                // Get the address of the first line.
+                ptr = heightMapData.Scan0;
+                // Convert nonwhite pixel colors to black
+                for(int i = 0; i < rgbValues.Length; i++) {
+                    rgbValues[i] = rgbValues[i] == (byte)255 ? (byte)0 : (byte)255;
                 }
+                // Copy the colors to the data
+                Marshal.Copy(ptr, rgbValues, 0, bytes);
+                // Unlock the bits.
+                pollutionBmp.UnlockBits(pollutionBmpData);
+
                 pollutionGraphics = Graphics.FromImage(pollutionBmp);
             }
 
@@ -2346,6 +2444,32 @@ namespace Goopify
                     pollutionGraphics.DrawLine(pen, startXPos, startYPos, endXPos, endYPos);
                 }
                 
+            }
+
+            // TODO: Add floodfill somehow (might be able to edit bmp and it auto updates graphics?)
+            public void FloodFillOnBmp(Vector2 uvPoint)
+            {
+                // copy bmp, do floodfill algorithm on it, overwrite bmp, save paint (from wherever calls this)
+
+                Bitmap filledBmp = (Bitmap)pollutionBmp.Clone();
+                // Lock the image data
+                BitmapData pollutionData = filledBmp.LockBits(new Rectangle(0, 0, filledBmp.Width, filledBmp.Height), ImageLockMode.ReadWrite, System.Drawing.Imaging.PixelFormat.Format8bppIndexed);
+                // Get the address of the first line.
+                IntPtr ptr = pollutionData.Scan0;
+                // Declare an array to hold the bytes of the bitmap.
+                int bytes = Math.Abs(pollutionData.Stride) * pollutionData.Height;
+                int pixelFormatSize = System.Drawing.Image.GetPixelFormatSize(System.Drawing.Imaging.PixelFormat.Format8bppIndexed);
+                byte[] rgbValues = new byte[bytes];
+
+                // Flood fill algorithm
+                
+                // Copy the colors to the data
+                Marshal.Copy(ptr, rgbValues, 0, bytes);
+                // Unlock the bits.
+                filledBmp.UnlockBits(pollutionData);
+
+                // Overwrite the pollution bmp with the filled one
+                OverwriteBmp(filledBmp);
             }
 
             public void OverwriteBmp(Bitmap newImage)
@@ -2572,6 +2696,7 @@ namespace Goopify
         private void AddToProgress(float addAmt)
         {
             cuttingProgress += addAmt;
+            if(cuttingProgress > 100) { cuttingProgress = 100; }
             Func del = delegate
             {
                 cutProgressBar.Value = (int)Math.Ceiling(cuttingProgress);

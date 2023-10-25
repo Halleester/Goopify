@@ -179,5 +179,53 @@ namespace Goopify.Properties {
                 this["rarcPath"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("False")]
+        public bool snapToRegionEdge {
+            get {
+                return ((bool)(this["snapToRegionEdge"]));
+            }
+            set {
+                this["snapToRegionEdge"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("False")]
+        public bool snapToRegionCorner {
+            get {
+                return ((bool)(this["snapToRegionCorner"]));
+            }
+            set {
+                this["snapToRegionCorner"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("True")]
+        public bool snapToGrid {
+            get {
+                return ((bool)(this["snapToGrid"]));
+            }
+            set {
+                this["snapToGrid"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("64")]
+        public int snapInterval {
+            get {
+                return ((int)(this["snapInterval"]));
+            }
+            set {
+                this["snapInterval"] = value;
+            }
+        }
     }
 }
