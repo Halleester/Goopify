@@ -3,25 +3,25 @@
   <Profiles />
   <Settings>
     <Setting Name="loadColDialogueRestore" Type="System.String" Scope="User">
-      <Value Profile="(Default)">c:\\</Value>
+      <Value Profile="(Default)">c:\</Value>
     </Setting>
     <Setting Name="dumpYmpDialogRestore" Type="System.String" Scope="User">
-      <Value Profile="(Default)">c:\\</Value>
+      <Value Profile="(Default)">c:\</Value>
     </Setting>
     <Setting Name="dumpSaveDialogRestore" Type="System.String" Scope="User">
-      <Value Profile="(Default)">c:\\</Value>
+      <Value Profile="(Default)">c:\</Value>
     </Setting>
     <Setting Name="goopTextureDialogRestore" Type="System.String" Scope="User">
-      <Value Profile="(Default)">c:\\</Value>
+      <Value Profile="(Default)">c:\</Value>
     </Setting>
     <Setting Name="resourceDialogueRestore" Type="System.String" Scope="User">
-      <Value Profile="(Default)">c:\\</Value>
+      <Value Profile="(Default)">c:\</Value>
     </Setting>
     <Setting Name="superBmdPath" Type="System.String" Scope="User">
-      <Value Profile="(Default)">null</Value>
+      <Value Profile="(Default)">\SuperBMD_2.4.7.1\SuperBMD.exe</Value>
     </Setting>
     <Setting Name="bmpImportPath" Type="System.String" Scope="User">
-      <Value Profile="(Default)">c:\\</Value>
+      <Value Profile="(Default)">c:\</Value>
     </Setting>
     <Setting Name="goopAngleTolerance" Type="System.Single" Scope="User">
       <Value Profile="(Default)">85</Value>
@@ -48,9 +48,6 @@
     <Setting Name="colorPairings" Type="System.String" Scope="User">
       <Value Profile="(Default)" />
     </Setting>
-    <Setting Name="rarcPath" Type="System.String" Scope="User">
-      <Value Profile="(Default)">D:\\Files\\Sunshine Hacking\\wiiszs\\rarc.py</Value>
-    </Setting>
     <Setting Name="snapToRegionEdge" Type="System.Boolean" Scope="User">
       <Value Profile="(Default)">False</Value>
     </Setting>
@@ -62,6 +59,15 @@
     </Setting>
     <Setting Name="snapInterval" Type="System.Int32" Scope="User">
       <Value Profile="(Default)">64</Value>
+    </Setting>
+    <Setting Name="loadGoopDialogueRestore" Type="System.String" Scope="User">
+      <Value Profile="(Default)">c:\</Value>
+    </Setting>
+    <Setting Name="saveGoopMapRestore" Type="System.String" Scope="User">
+      <Value Profile="(Default)">c:\</Value>
+    </Setting>
+    <Setting Name="extractDialogueRestore" Type="System.String" Scope="User">
+      <Value Profile="(Default)">c:\</Value>
     </Setting>
   </Settings>
 </SettingsFile>

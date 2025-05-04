@@ -25,7 +25,7 @@ namespace Goopify.Properties {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("c:\\\\")]
+        [global::System.Configuration.DefaultSettingValueAttribute("c:\\")]
         public string loadColDialogueRestore {
             get {
                 return ((string)(this["loadColDialogueRestore"]));
@@ -37,7 +37,7 @@ namespace Goopify.Properties {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("c:\\\\")]
+        [global::System.Configuration.DefaultSettingValueAttribute("c:\\")]
         public string dumpYmpDialogRestore {
             get {
                 return ((string)(this["dumpYmpDialogRestore"]));
@@ -49,7 +49,7 @@ namespace Goopify.Properties {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("c:\\\\")]
+        [global::System.Configuration.DefaultSettingValueAttribute("c:\\")]
         public string dumpSaveDialogRestore {
             get {
                 return ((string)(this["dumpSaveDialogRestore"]));
@@ -61,7 +61,7 @@ namespace Goopify.Properties {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("c:\\\\")]
+        [global::System.Configuration.DefaultSettingValueAttribute("c:\\")]
         public string goopTextureDialogRestore {
             get {
                 return ((string)(this["goopTextureDialogRestore"]));
@@ -73,7 +73,7 @@ namespace Goopify.Properties {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("c:\\\\")]
+        [global::System.Configuration.DefaultSettingValueAttribute("c:\\")]
         public string resourceDialogueRestore {
             get {
                 return ((string)(this["resourceDialogueRestore"]));
@@ -85,7 +85,7 @@ namespace Goopify.Properties {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("null")]
+        [global::System.Configuration.DefaultSettingValueAttribute("\\SuperBMD_2.4.7.1\\SuperBMD.exe")]
         public string superBmdPath {
             get {
                 return ((string)(this["superBmdPath"]));
@@ -97,7 +97,7 @@ namespace Goopify.Properties {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("c:\\\\")]
+        [global::System.Configuration.DefaultSettingValueAttribute("c:\\")]
         public string bmpImportPath {
             get {
                 return ((string)(this["bmpImportPath"]));
@@ -170,18 +170,6 @@ namespace Goopify.Properties {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("D:\\\\Files\\\\Sunshine Hacking\\\\wiiszs\\\\rarc.py")]
-        public string rarcPath {
-            get {
-                return ((string)(this["rarcPath"]));
-            }
-            set {
-                this["rarcPath"] = value;
-            }
-        }
-        
-        [global::System.Configuration.UserScopedSettingAttribute()]
-        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("False")]
         public bool snapToRegionEdge {
             get {
@@ -225,6 +213,42 @@ namespace Goopify.Properties {
             }
             set {
                 this["snapInterval"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("c:\\")]
+        public string loadGoopDialogueRestore {
+            get {
+                return ((string)(this["loadGoopDialogueRestore"]));
+            }
+            set {
+                this["loadGoopDialogueRestore"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("c:\\")]
+        public string saveGoopMapRestore {
+            get {
+                return ((string)(this["saveGoopMapRestore"]));
+            }
+            set {
+                this["saveGoopMapRestore"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("c:\\")]
+        public string extractDialogueRestore {
+            get {
+                return ((string)(this["extractDialogueRestore"]));
+            }
+            set {
+                this["extractDialogueRestore"] = value;
             }
         }
     }

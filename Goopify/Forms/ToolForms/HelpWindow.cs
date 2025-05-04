@@ -8,11 +8,11 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
-namespace Goopify.Forms.ToolForms
+namespace Goopify
 {
-    public partial class GuideSubform : Form
+    public partial class HelpWindow : Form
     {
-        public GuideSubform()
+        public HelpWindow()
         {
             InitializeComponent();
         }

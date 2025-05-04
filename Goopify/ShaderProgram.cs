@@ -132,6 +132,11 @@ namespace Goopify
             GL.UseProgram(0);
         }
 
+        public void SetInt(string name, int value)
+        {
+            int location = GL.GetUniformLocation(this.ShaderProgramHandle, name);
+            GL.Uniform1(location, value);
+        }
 
         private bool GetShaderUniform(string name, out ShaderUniform uniform)
         {
@@ -157,6 +162,7 @@ namespace Goopify
             vertexShaderHandle = GL.CreateShader(ShaderType.VertexShader);
             GL.ShaderSource(vertexShaderHandle, vertexShaderCode);
             GL.CompileShader(vertexShaderHandle);
+            CheckCompileErrors(vertexShaderHandle, "VERTEX");
 
             string vertexShaderInfo = GL.GetShaderInfoLog(vertexShaderHandle);
             if (vertexShaderInfo != String.Empty)
@@ -175,6 +181,7 @@ namespace Goopify
             pixelShaderHandle = GL.CreateShader(ShaderType.FragmentShader);
             GL.ShaderSource(pixelShaderHandle, pixelShaderCode);
             GL.CompileShader(pixelShaderHandle);
+            CheckCompileErrors(pixelShaderHandle, "FRAGMENT");
 
             string pixelShaderInfo = GL.GetShaderInfoLog(pixelShaderHandle);
             if (pixelShaderInfo != String.Empty)
@@ -194,6 +201,8 @@ namespace Goopify
             GL.AttachShader(shaderProgramHandle, pixelShaderHandle);
 
             GL.LinkProgram(shaderProgramHandle);
+            CheckLinkingErrors(shaderProgramHandle);
+            CheckCompileErrors(shaderProgramHandle, "PROGRAM");
 
             GL.DetachShader(shaderProgramHandle, vertexShaderHandle);
             GL.DetachShader(shaderProgramHandle, pixelShaderHandle);
@@ -231,6 +240,26 @@ namespace Goopify
             }
 
             return attributes;
+        }
+
+        private static void CheckCompileErrors(int shader, string type)
+        {
+            GL.GetShader(shader, ShaderParameter.CompileStatus, out int success);
+            if (success == 0)
+            {
+                string infoLog = GL.GetShaderInfoLog(shader);
+                Console.WriteLine($"ERROR::SHADER_COMPILATION_ERROR of type: {type}\n{infoLog}");
+            }
+        }
+
+        public static void CheckLinkingErrors(int program)
+        {
+            GL.GetProgram(program, GetProgramParameterName.LinkStatus, out int success);
+            if (success == 0)
+            {
+                string infoLog = GL.GetProgramInfoLog(program);
+                Console.WriteLine($"ERROR::PROGRAM_LINKING_ERROR\n{infoLog}");
+            }
         }
 
     }

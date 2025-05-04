@@ -7,7 +7,9 @@ using System.Data;
 using System.Diagnostics;
 using System.Drawing;
 using System.IO;
+using System.IO.Compression;
 using System.Linq;
+using System.Net;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
@@ -20,22 +22,22 @@ namespace Goopify
         private const bool testEditWithoutMap = false;
         private const bool instantEditor = false;
 
-        public StartingWindow()
+        public StartingWindow(string instantLoad = "")
         {
             InitializeComponent();
 
+            //ResetSettings();
+
             SetupInfoPathsIfNeeded();
 
-            if(instantEditor)
+            if(instantLoad != "")
             {
-                //bmp.Save("C:\\Users\\alexh\\Downloads\\pollutiontest.bmp");
-                string path = "C:\\Users\\alexh\\Downloads\\casino1.szs_ext\\scene\\map\\map.col";
                 // Open and setup the window
                 EditorWindow editorWindow = new EditorWindow();
                 editorWindow.Show();
                 this.Hide();
 
-                editorWindow.Setup(path);
+                editorWindow.LoadGoopMap(instantLoad);
             }
         }
 
@@ -64,52 +66,85 @@ namespace Goopify
                 editorWindow.Show();
                 this.Hide();
             } else {
-                OpenFileDialog fileDialog = new OpenFileDialog();
-                fileDialog.Filter = "Collision File (*.col)|*.col";
-                fileDialog.InitialDirectory = Properties.Settings.Default.loadColDialogueRestore;
-                if (fileDialog.ShowDialog() == DialogResult.OK) // If the Ok button is hit
-                {
-                    // Save the directory for next time
-                    Properties.Settings.Default.loadColDialogueRestore = Path.GetDirectoryName(fileDialog.FileName);
-                    Properties.Settings.Default.Save();
-                    // Open and setup the window
-                    EditorWindow editorWindow = new EditorWindow();
-                    editorWindow.Show();
-                    this.Hide();
+                NewGoopMap();
+            }
+        }
 
-                    editorWindow.Setup(fileDialog.FileName);
-                }
+        public void NewGoopMap()
+        {
+            OpenFileDialog fileDialog = new OpenFileDialog();
+            fileDialog.Filter = "Collision File (*.col)|*.col";
+            fileDialog.InitialDirectory = Properties.Settings.Default.loadColDialogueRestore;
+            if (fileDialog.ShowDialog() == DialogResult.OK) // If the Ok button is hit
+            {
+                // Save the directory for next time
+                Properties.Settings.Default.loadColDialogueRestore = Path.GetDirectoryName(fileDialog.FileName);
+                Properties.Settings.Default.Save();
+                // Open and setup the window
+                EditorWindow editorWindow = new EditorWindow();
+                editorWindow.Show();
+                this.Hide();
+
+                editorWindow.NewGoopMap(fileDialog.FileName);
             }
         }
 
         private void SetupInfoPathsIfNeeded()
         {
             // Setup SuperBMD
-            if (Properties.Settings.Default.superBmdPath == "null" || !File.Exists(Properties.Settings.Default.superBmdPath))
+            string defaultSuperBmdPath = Directory.GetCurrentDirectory() + @"\SuperBMD_2.4.7.1\SuperBMD.exe";
+            if(!File.Exists(defaultSuperBmdPath))
             {
-                MessageBox.Show("Setup SuperBMD path for model exporting!", "Initial Setup", MessageBoxButtons.OK, MessageBoxIcon.Information);
-                OpenFileDialog fileDialog = new OpenFileDialog();
-                fileDialog.Title = "SuperBMD Path";
-                fileDialog.Filter = "SuperBMD (*.exe)|*.exe";
-                fileDialog.InitialDirectory = "C:\\";
-                if (fileDialog.ShowDialog() == DialogResult.OK) // If the Ok button is hit
+                if (Properties.Settings.Default.superBmdPath == "null" || !File.Exists(Properties.Settings.Default.superBmdPath))
                 {
-                    // Save the directory for next time
-                    Properties.Settings.Default.superBmdPath = fileDialog.FileName;
-                    Properties.Settings.Default.Save();
+                    // Try to get a local version of SuperBMD from the build first
+                    string superBmdPath = Directory.GetCurrentDirectory() + Properties.Settings.Default.superBmdPath;
+                    if(File.Exists(Properties.Settings.Default.superBmdPath))
+                    {
+                        Properties.Settings.Default.superBmdPath = superBmdPath;
+                        Properties.Settings.Default.Save();
+                    } else
+                    {
+                        MessageBox.Show("SuperBMD missing from the build! Select a SuperBMD path for model exporting!", "Initial Setup", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                        OpenFileDialog fileDialog = new OpenFileDialog();
+                        fileDialog.Title = "SuperBMD Path";
+                        fileDialog.Filter = "SuperBMD (*.exe)|*.exe";
+                        fileDialog.InitialDirectory = "C:\\";
+                        if (fileDialog.ShowDialog() == DialogResult.OK) // If the Ok button is hit
+                        {
+                            // Save the directory for next time
+                            Properties.Settings.Default.superBmdPath = fileDialog.FileName;
+                            Properties.Settings.Default.Save();
 
-                    FileVersionInfo versionInfo = FileVersionInfo.GetVersionInfo(Properties.Settings.Default.superBmdPath);
-                    string versionString = versionInfo.FileVersion;
+                            FileVersionInfo versionInfo = FileVersionInfo.GetVersionInfo(Properties.Settings.Default.superBmdPath);
+                            string versionString = versionInfo.FileVersion;
+                        }
+                    }
                 }
+            } else
+            {
+                Properties.Settings.Default.superBmdPath = defaultSuperBmdPath;
+                Properties.Settings.Default.Save();
             }
 
             // Setup goop resources
-            if(!GoopResources.AreResourcesGotten())
+            if (!GoopResources.AreResourcesGotten())
             {
-                // Ask for rarc python path first
+                // Warning that there's no defined goop files
+                DialogResult dialogResult = MessageBox.Show("No \"GoopResources\" folder has been found. " + 
+                    "Would you like to download it?", "Goopify Setup", MessageBoxButtons.YesNo);
+                if (dialogResult == DialogResult.Yes)
+                {
+                    using (WebClient wc = new WebClient())
+                    {
+                        string zipUrl = "https://drive.google.com/uc?export=download&id=1UhCAdBIxxPWgdwRRRPq1VHCL0VCqBS7K";
+                        string zipSaveLoc = Directory.GetCurrentDirectory() + @"/GoopResources.zip";
+                        wc.DownloadFileAsync(new Uri(zipUrl), zipSaveLoc);
+                        wc.DownloadFileCompleted += Wc_DownloadFileCompleted;
+                    }
+                }
 
-
-                MessageBox.Show("Please extract your base SMS iso and select your \"scene\" folder.", "Goopify Setup");
+                /*MessageBox.Show("Please extract your base SMS iso and select your \"scene\" folder.", "Goopify Setup");
                 // Get the scene folder to extract resources
                 CommonOpenFileDialog folderDialogue = new CommonOpenFileDialog();
                 folderDialogue.IsFolderPicker = true;
@@ -117,7 +152,48 @@ namespace Goopify
                 if (folderDialogue.ShowDialog() == CommonFileDialogResult.Ok) // If the Ok button is hit
                 {
                     GoopResources.GetGoopResources(folderDialogue.FileName);
-                }
+                }*/
+            }
+        }
+
+        private void Wc_DownloadFileCompleted(object sender, AsyncCompletedEventArgs e)
+        {
+            if(e.Error == null) {
+                ZipFile.ExtractToDirectory(Directory.GetCurrentDirectory() + @"/GoopResources.zip", Directory.GetCurrentDirectory());
+                MessageBox.Show("GoopResources successfully downloaded!", "Goopify Setup");
+            } else {
+                MessageBox.Show("Error while downloading GoopResources: " + e.Error.ToString(), "Goopify Setup");
+            }
+            
+        }
+
+        private void ResetSettings()
+        {
+            Properties.Settings.Default.Reset();
+        }
+
+        private void helpButton_Click(object sender, EventArgs e)
+        {
+            HelpWindow helpWindow = new HelpWindow();
+            helpWindow.Show();
+        }
+
+        private void editGoopmapButton_Click(object sender, EventArgs e)
+        {
+            OpenFileDialog fileDialog = new OpenFileDialog();
+            fileDialog.Filter = "GoopMap File (*.goo)|*.goo";
+            fileDialog.InitialDirectory = Properties.Settings.Default.loadGoopDialogueRestore;
+            if (fileDialog.ShowDialog() == DialogResult.OK) // If the Ok button is hit
+            {
+                // Save the directory for next time
+                Properties.Settings.Default.loadGoopDialogueRestore = Path.GetDirectoryName(fileDialog.FileName);
+                Properties.Settings.Default.Save();
+                // Open and setup the window
+                EditorWindow editorWindow = new EditorWindow();
+                editorWindow.Show();
+                this.Hide();
+
+                editorWindow.LoadGoopMap(fileDialog.FileName);
             }
         }
     }

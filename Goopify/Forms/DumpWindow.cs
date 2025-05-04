@@ -40,7 +40,7 @@ namespace Goopify.Forms
             if (fileDialog.ShowDialog() == DialogResult.OK) // If the Ok button is hit
             {
                 // Save the directory for next time
-                Properties.Settings.Default.dumpYmpDialogRestore = fileDialog.FileName;
+                Properties.Settings.Default.dumpYmpDialogRestore = Path.GetDirectoryName(fileDialog.FileName);
                 Properties.Settings.Default.Save();
                 //Get the path of specified file
                 ympPath = fileDialog.FileName;

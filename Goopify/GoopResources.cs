@@ -11,10 +11,10 @@ namespace Goopify
 {
     static class GoopResources
     {
-        public const string resourcePath = "GoopResources";
-        public const string matDumpFolder = "BMDDump";
+        public const string resourcePath = @"\GoopResources";
+        public const string matDumpFolder = "Bmd";
 
-        // Goop needs a model, texture bti, particles, bmp, and btk animation
+        /*// Goop needs a model, texture bti, particles, bmp, and btk animation
 
         // Add custom goop as an example for adding your own goop types
         public enum PredefinedGoopColor { Brown, Black, Pink, Electric, Fire }
@@ -26,8 +26,6 @@ namespace Goopify
         private const string btkFileName = "textureAnim.btk";
         private const string matJsonName = "goop_materials.json";
         private const string texHeadJsonName = "goop_texheaders.json";
-
-        // bianco0 for brown, mare0 for pink, monte0 for fire, ricco0 for black, sirena0 for electric
 
         // Particles (always the same name, the files are just different)
         private const string flowerParticle = "ms_m_ashios.jpa"; // Ground splat effect?
@@ -286,18 +284,88 @@ namespace Goopify
             }
         }
 
-        public static string GetBtkPath(string goopTypeFolderName)
+        */
+
+        public static string GetDefaultGoop()
         {
-            string btkPath = resourcePath + "\\" + goopTypeFolderName + "\\" + btkFileName;
-            return File.Exists(btkPath) ? btkPath : "";
+            // First try to get brown goop, then the first goop in list, otherwise do fallback goop 
+            if(Directory.Exists(Directory.GetCurrentDirectory() + resourcePath))
+            {
+                if(Directory.Exists(Directory.GetCurrentDirectory() + resourcePath + @"\BrownGoop")) {
+                    return "BrownGoop";
+                } else {
+                    string[] subdirs = Directory.GetDirectories(Directory.GetCurrentDirectory() + resourcePath);
+                    return subdirs.Length > 0 ? Path.GetFileName(subdirs[0]) : "";
+                }
+            } else
+            {
+                return "";
+            }
         }
 
+        public static bool AreResourcesGotten()
+        {
+            return Directory.Exists(AppDomain.CurrentDomain.BaseDirectory + resourcePath);
+        }
+
+        /// <summary>
+        /// Gets all particles for a goop visual type
+        /// </summary>
+        /// <param name="goopTypeFolderName"></param>
+        /// <returns></returns>
         public static string[] GetParticlePaths(string goopTypeFolderName)
         {
-            string goopFolderPath = resourcePath + "\\" + goopTypeFolderName;
+            string goopFolderPath = Directory.GetCurrentDirectory() + resourcePath + @"\" + goopTypeFolderName;
             string[] particlePaths = Directory.GetFiles(goopFolderPath, "*.jpa");
             return particlePaths;
         }
+
+        public static string[] GetBtiPaths(string goopTypeFolderName)
+        {
+            string btiPath = Directory.GetCurrentDirectory() + resourcePath + @"\" + goopTypeFolderName;
+            string[] btiPaths = Directory.GetFiles(btiPath, "*.bti");
+            return btiPaths;
+        }
+
+        public static string[] GetBtkPaths(string goopTypeFolderName)
+        {
+            string btkPath = Directory.GetCurrentDirectory() + resourcePath + @"\" + goopTypeFolderName;
+            string[] btkPaths = Directory.GetFiles(btkPath, "*.btk");
+            return btkPaths;
+        }
+
+        public static string GetBtkPath(string goopTypeFolderName)
+        {
+            return Directory.GetCurrentDirectory() + resourcePath + @"\" + goopTypeFolderName + @"\textureAnim.btk";
+        }
+
+        /// <summary>
+        /// Gets the folder that we use to build the BMD
+        /// </summary>
+        /// <param name="goopTypeFolderName"></param>
+        /// <returns></returns>
+        public static string GetGlobalResourcesPath(string goopTypeFolderName)
+        {
+            string resourcesPath = Directory.GetCurrentDirectory() + resourcePath + @"\" + goopTypeFolderName + @"\" + matDumpFolder;
+            return Directory.Exists(resourcesPath) ? resourcesPath : "";
+        }
+
+        public static string GetResourcesFolderPath()
+        {
+            return Directory.GetCurrentDirectory() + resourcePath;
+        }
+
+        public static System.Drawing.Bitmap GetGoopVisual(string goopTypeFolderName)
+        {
+            string goopFolder = Directory.GetCurrentDirectory() + resourcePath + @"\" + goopTypeFolderName;
+            string visualPath = goopFolder + @"\visualPreview.png";
+            if(goopTypeFolderName == "" || !Directory.Exists(goopFolder)) {
+                visualPath = Directory.GetCurrentDirectory() + @"Resources\FallbackGoop\visualPreview.png";
+            }
+            return File.Exists(visualPath) ? new System.Drawing.Bitmap(visualPath) : Properties.Resources.defaultGoopTexture;
+        }
+
+        /*
 
         public static string GetBtiPath(string goopTypeFolderName)
         {
@@ -348,9 +416,9 @@ namespace Goopify
             p.Start();
             /*using (StreamReader reader = p.StandardOutput) {
                 string result = reader.ReadToEnd();
-            }*/
+            }*//*
             p.WaitForExit();
             return levelPath;
-        }
+        }*/
     }
 }

@@ -58,6 +58,8 @@
     <Reference Include="PresentationFramework" />
     <Reference Include="System" />
     <Reference Include="System.Core" />
+    <Reference Include="System.IO.Compression" />
+    <Reference Include="System.IO.Compression.FileSystem" />
     <Reference Include="System.ServiceProcess" />
     <Reference Include="System.ValueTuple, Version=4.0.3.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
       <HintPath>..\packages\System.ValueTuple.4.5.0\lib\netstandard1.0\System.ValueTuple.dll</HintPath>
@@ -84,6 +86,12 @@
     </Compile>
     <Compile Include="Forms\DumpWindow.Designer.cs">
       <DependentUpon>DumpWindow.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Forms\ToolForms\HelpWindow.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Forms\ToolForms\HelpWindow.Designer.cs">
+      <DependentUpon>HelpWindow.cs</DependentUpon>
     </Compile>
     <Compile Include="Forms\ToolForms\GoopPaintingSubform.cs">
       <SubType>Form</SubType>
@@ -135,7 +143,13 @@
     <Compile Include="Forms\StartingWindow.Designer.cs">
       <DependentUpon>StartingWindow.cs</DependentUpon>
     </Compile>
+    <Compile Include="Properties\Resources.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>Resources.resx</DependentUpon>
+    </Compile>
     <Compile Include="Settings.cs" />
+    <Compile Include="Shader.cs" />
     <Compile Include="ShaderProgram.cs" />
     <EmbeddedResource Include="Forms\DumpWindow.resx">
       <DependentUpon>DumpWindow.cs</DependentUpon>
@@ -145,6 +159,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Forms\ToolForms\GoopPaintingSubform.resx">
       <DependentUpon>GoopPaintingSubform.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Forms\ToolForms\HelpWindow.resx">
+      <DependentUpon>HelpWindow.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Forms\ToolForms\OpenTKTesting.resx">
       <DependentUpon>OpenTKTesting.cs</DependentUpon>
@@ -160,14 +177,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>
-      <LastGenOutput>Resources.Designer.cs</LastGenOutput>
       <SubType>Designer</SubType>
+      <LastGenOutput>Resources.Designer.cs</LastGenOutput>
     </EmbeddedResource>
-    <Compile Include="Properties\Resources.Designer.cs">
-      <AutoGen>True</AutoGen>
-      <DependentUpon>Resources.resx</DependentUpon>
-      <DesignTime>True</DesignTime>
-    </Compile>
     <EmbeddedResource Include="Forms\StartingWindow.resx">
       <DependentUpon>StartingWindow.cs</DependentUpon>
     </EmbeddedResource>
@@ -257,15 +269,23 @@
     </None>
   </ItemGroup>
   <ItemGroup>
-    <None Include="Resources\colorSwapWhite.png">
+    <Content Include="goopifyIcon.ico" />
+    <None Include="Resources\icons\dark\folder-open-solid.png" />
+    <None Include="Resources\icons\dark\file-solid.png" />
+    <None Include="Resources\icons\dark\save-solid.png" />
+    <None Include="Resources\icons\light\paint-brush-solid.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="Resources\icons\light\fill-drip-solid.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="Resources\icons\light\eraser-solid.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="Resources\icons\light\trash-alt-solid.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
   </ItemGroup>
-  <ItemGroup>
-    <None Include="Resources\colorSwapBlack.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <Content Include="goopifyIcon.ico" />
-  </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

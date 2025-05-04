@@ -29,6 +29,7 @@ namespace Goopify
         /// </summary>
         private void InitializeComponent()
         {
+            this.components = new System.ComponentModel.Container();
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(StartingWindow));
             this.newGoopmapButton = new System.Windows.Forms.Button();
             this.editGoopmapButton = new System.Windows.Forms.Button();
@@ -36,6 +37,8 @@ namespace Goopify
             this.toolIcon = new System.Windows.Forms.PictureBox();
             this.label1 = new System.Windows.Forms.Label();
             this.panel1 = new System.Windows.Forms.Panel();
+            this.helpButton = new System.Windows.Forms.Button();
+            this.startingTooltip = new System.Windows.Forms.ToolTip(this.components);
             ((System.ComponentModel.ISupportInitialize)(this.toolIcon)).BeginInit();
             this.panel1.SuspendLayout();
             this.SuspendLayout();
@@ -54,7 +57,8 @@ namespace Goopify
             this.newGoopmapButton.Name = "newGoopmapButton";
             this.newGoopmapButton.Size = new System.Drawing.Size(234, 63);
             this.newGoopmapButton.TabIndex = 0;
-            this.newGoopmapButton.Text = "New Goopmap";
+            this.newGoopmapButton.Text = "New GoopMap";
+            this.startingTooltip.SetToolTip(this.newGoopmapButton, "Create a new goopmap for a level using a collision file.");
             this.newGoopmapButton.UseVisualStyleBackColor = false;
             this.newGoopmapButton.Click += new System.EventHandler(this.newGoopmapButton_Click);
             // 
@@ -62,7 +66,6 @@ namespace Goopify
             // 
             this.editGoopmapButton.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(60)))), ((int)(((byte)(66)))), ((int)(((byte)(95)))));
             this.editGoopmapButton.Cursor = System.Windows.Forms.Cursors.Default;
-            this.editGoopmapButton.Enabled = false;
             this.editGoopmapButton.FlatAppearance.BorderColor = System.Drawing.Color.FromArgb(((int)(((byte)(60)))), ((int)(((byte)(66)))), ((int)(((byte)(95)))));
             this.editGoopmapButton.FlatAppearance.BorderSize = 0;
             this.editGoopmapButton.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
@@ -73,8 +76,10 @@ namespace Goopify
             this.editGoopmapButton.Name = "editGoopmapButton";
             this.editGoopmapButton.Size = new System.Drawing.Size(234, 63);
             this.editGoopmapButton.TabIndex = 1;
-            this.editGoopmapButton.Text = "Edit Goopmap";
+            this.editGoopmapButton.Text = "Edit GoopMap";
+            this.startingTooltip.SetToolTip(this.editGoopmapButton, "Load an existing Goopify goopmap file (.goop) to modify or rebuild it.");
             this.editGoopmapButton.UseVisualStyleBackColor = false;
+            this.editGoopmapButton.Click += new System.EventHandler(this.editGoopmapButton_Click);
             // 
             // extractGoopmapButton
             // 
@@ -90,7 +95,9 @@ namespace Goopify
             this.extractGoopmapButton.Name = "extractGoopmapButton";
             this.extractGoopmapButton.Size = new System.Drawing.Size(234, 63);
             this.extractGoopmapButton.TabIndex = 2;
-            this.extractGoopmapButton.Text = "Extract Goopmap";
+            this.extractGoopmapButton.Text = "Extract YMP Data";
+            this.startingTooltip.SetToolTip(this.extractGoopmapButton, "Extract the data from a .ymp file to view the heightmaps and data stored within i" +
+        "t.");
             this.extractGoopmapButton.UseVisualStyleBackColor = false;
             this.extractGoopmapButton.Click += new System.EventHandler(this.extractGoopmapButton_Click);
             // 
@@ -130,12 +137,32 @@ namespace Goopify
             this.panel1.Size = new System.Drawing.Size(624, 171);
             this.panel1.TabIndex = 5;
             // 
+            // helpButton
+            // 
+            this.helpButton.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(60)))), ((int)(((byte)(66)))), ((int)(((byte)(95)))));
+            this.helpButton.Cursor = System.Windows.Forms.Cursors.Default;
+            this.helpButton.FlatAppearance.BorderColor = System.Drawing.Color.FromArgb(((int)(((byte)(60)))), ((int)(((byte)(66)))), ((int)(((byte)(95)))));
+            this.helpButton.FlatAppearance.BorderSize = 0;
+            this.helpButton.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.helpButton.Font = new System.Drawing.Font("Microsoft Sans Serif", 9F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.helpButton.ForeColor = System.Drawing.Color.LightGray;
+            this.helpButton.Location = new System.Drawing.Point(749, 428);
+            this.helpButton.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
+            this.helpButton.Name = "helpButton";
+            this.helpButton.Size = new System.Drawing.Size(39, 36);
+            this.helpButton.TabIndex = 7;
+            this.helpButton.Text = "?";
+            this.startingTooltip.SetToolTip(this.helpButton, "Help");
+            this.helpButton.UseVisualStyleBackColor = false;
+            this.helpButton.Click += new System.EventHandler(this.helpButton_Click);
+            // 
             // StartingWindow
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(9F, 20F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(46)))), ((int)(((byte)(51)))), ((int)(((byte)(73)))));
             this.ClientSize = new System.Drawing.Size(801, 478);
+            this.Controls.Add(this.helpButton);
             this.Controls.Add(this.extractGoopmapButton);
             this.Controls.Add(this.editGoopmapButton);
             this.Controls.Add(this.newGoopmapButton);
@@ -160,5 +187,7 @@ namespace Goopify
         private System.Windows.Forms.PictureBox toolIcon;
         private System.Windows.Forms.Label label1;
         private System.Windows.Forms.Panel panel1;
+        private System.Windows.Forms.ToolTip startingTooltip;
+        private System.Windows.Forms.Button helpButton;
     }
 }

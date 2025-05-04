@@ -1,6 +1,7 @@
 ﻿using Goopify.Forms.ToolForms;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Windows.Forms;
@@ -13,24 +14,20 @@ namespace Goopify
         /// The main entry point for the application.
         /// </summary>
         /// 
-        public static Form startingForm;
+        public static StartingWindow startingForm;
         [STAThread]
-        static void Main()
-        {
+        static void Main(string[] args) {
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
 
-            //Intened for release
-            startingForm = new StartingWindow();
+            // Check if we're trying to open a file with this program
+            string startupLoad = "";
+            if (args.Length > 0 && File.Exists(args[0]) && Path.GetExtension(args[0]) == ".goo") {
+                startupLoad = args[0];
+            }
+
+            startingForm = new StartingWindow(startupLoad);
             Application.Run(startingForm);
-
-            // For testing OpenTK
-            //OpenTKTesting test = new OpenTKTesting();
-            //Application.Run(test);
-
-            // For testing editor
-            //EditorWindow editorWindow = new EditorWindow();
-            //Application.Run(editorWindow);
         }
     }
 }

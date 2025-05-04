@@ -32,8 +32,13 @@
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(EditorWindow));
             this.menuStrip1 = new System.Windows.Forms.MenuStrip();
             this.fileToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.newMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.openMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.toolStripSeparator4 = new System.Windows.Forms.ToolStripSeparator();
+            this.saveMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.saveAllMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.toolStripSeparator3 = new System.Windows.Forms.ToolStripSeparator();
             this.backToMenuToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.exitToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.editToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.snapSettingsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.propertiesToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
@@ -47,7 +52,11 @@
             this.editorPanel = new System.Windows.Forms.Panel();
             this.cutProgressBar = new System.Windows.Forms.ProgressBar();
             this.paintingPanel = new System.Windows.Forms.Panel();
-            this.brushButton = new System.Windows.Forms.PictureBox();
+            this.clearButton = new System.Windows.Forms.Button();
+            this.pictureBox2 = new System.Windows.Forms.PictureBox();
+            this.paintRadioButton = new System.Windows.Forms.RadioButton();
+            this.eraseRadioButton = new System.Windows.Forms.RadioButton();
+            this.pictureBox1 = new System.Windows.Forms.PictureBox();
             this.brushSizeTextBox = new System.Windows.Forms.TextBox();
             this.label17 = new System.Windows.Forms.Label();
             this.posPanel = new System.Windows.Forms.Panel();
@@ -96,6 +105,8 @@
             this.visualRegionsListBox = new System.Windows.Forms.ListBox();
             this.panel12 = new System.Windows.Forms.Panel();
             this.panel15 = new System.Windows.Forms.Panel();
+            this.textureRotationNumericUpDown = new System.Windows.Forms.NumericUpDown();
+            this.label14 = new System.Windows.Forms.Label();
             this.downloadBmpButton = new System.Windows.Forms.Button();
             this.uploadBmpButton = new System.Windows.Forms.Button();
             this.regionBpmPictureBox = new System.Windows.Forms.PictureBox();
@@ -117,7 +128,8 @@
             this.overallLayoutPanel.SuspendLayout();
             this.editorPanel.SuspendLayout();
             this.paintingPanel.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.brushButton)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.pictureBox2)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).BeginInit();
             this.posPanel.SuspendLayout();
             this.tabControl1.SuspendLayout();
             this.tabPage1.SuspendLayout();
@@ -137,6 +149,7 @@
             this.panel7.SuspendLayout();
             this.panel13.SuspendLayout();
             this.panel15.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.textureRotationNumericUpDown)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.regionBpmPictureBox)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.textureScaleNumericUpDown)).BeginInit();
             this.panel16.SuspendLayout();
@@ -153,30 +166,77 @@
             this.helpToolStripMenuItem});
             this.menuStrip1.Location = new System.Drawing.Point(0, 0);
             this.menuStrip1.Name = "menuStrip1";
-            this.menuStrip1.Size = new System.Drawing.Size(1662, 36);
+            this.menuStrip1.Size = new System.Drawing.Size(1662, 33);
             this.menuStrip1.TabIndex = 0;
             this.menuStrip1.Text = "menuStrip1";
             // 
             // fileToolStripMenuItem
             // 
             this.fileToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.backToMenuToolStripMenuItem,
-            this.exitToolStripMenuItem});
+            this.newMenuItem,
+            this.openMenuItem,
+            this.toolStripSeparator4,
+            this.saveMenuItem,
+            this.saveAllMenuItem,
+            this.toolStripSeparator3,
+            this.backToMenuToolStripMenuItem});
             this.fileToolStripMenuItem.Name = "fileToolStripMenuItem";
-            this.fileToolStripMenuItem.Size = new System.Drawing.Size(54, 30);
+            this.fileToolStripMenuItem.Size = new System.Drawing.Size(54, 29);
             this.fileToolStripMenuItem.Text = "File";
+            // 
+            // newMenuItem
+            // 
+            this.newMenuItem.Image = ((System.Drawing.Image)(resources.GetObject("newMenuItem.Image")));
+            this.newMenuItem.Name = "newMenuItem";
+            this.newMenuItem.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.N)));
+            this.newMenuItem.Size = new System.Drawing.Size(321, 34);
+            this.newMenuItem.Text = "New...";
+            this.newMenuItem.Click += new System.EventHandler(this.newMenuItem_Click);
+            // 
+            // openMenuItem
+            // 
+            this.openMenuItem.Image = ((System.Drawing.Image)(resources.GetObject("openMenuItem.Image")));
+            this.openMenuItem.Name = "openMenuItem";
+            this.openMenuItem.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.O)));
+            this.openMenuItem.Size = new System.Drawing.Size(321, 34);
+            this.openMenuItem.Text = "Open GoopMap...";
+            this.openMenuItem.Click += new System.EventHandler(this.openMenuItem_Click);
+            // 
+            // toolStripSeparator4
+            // 
+            this.toolStripSeparator4.Name = "toolStripSeparator4";
+            this.toolStripSeparator4.Size = new System.Drawing.Size(318, 6);
+            // 
+            // saveMenuItem
+            // 
+            this.saveMenuItem.Image = ((System.Drawing.Image)(resources.GetObject("saveMenuItem.Image")));
+            this.saveMenuItem.Name = "saveMenuItem";
+            this.saveMenuItem.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.S)));
+            this.saveMenuItem.Size = new System.Drawing.Size(321, 34);
+            this.saveMenuItem.Text = "Save...";
+            this.saveMenuItem.Click += new System.EventHandler(this.saveMenuItem_Click);
+            // 
+            // saveAllMenuItem
+            // 
+            this.saveAllMenuItem.Image = ((System.Drawing.Image)(resources.GetObject("saveAllMenuItem.Image")));
+            this.saveAllMenuItem.Name = "saveAllMenuItem";
+            this.saveAllMenuItem.ShortcutKeys = ((System.Windows.Forms.Keys)(((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.Shift) 
+            | System.Windows.Forms.Keys.S)));
+            this.saveAllMenuItem.Size = new System.Drawing.Size(321, 34);
+            this.saveAllMenuItem.Text = "Save as...";
+            this.saveAllMenuItem.Click += new System.EventHandler(this.saveAsMenuItem_Click);
+            // 
+            // toolStripSeparator3
+            // 
+            this.toolStripSeparator3.Name = "toolStripSeparator3";
+            this.toolStripSeparator3.Size = new System.Drawing.Size(318, 6);
             // 
             // backToMenuToolStripMenuItem
             // 
             this.backToMenuToolStripMenuItem.Name = "backToMenuToolStripMenuItem";
-            this.backToMenuToolStripMenuItem.Size = new System.Drawing.Size(222, 34);
+            this.backToMenuToolStripMenuItem.Size = new System.Drawing.Size(321, 34);
             this.backToMenuToolStripMenuItem.Text = "Back to Menu";
-            // 
-            // exitToolStripMenuItem
-            // 
-            this.exitToolStripMenuItem.Name = "exitToolStripMenuItem";
-            this.exitToolStripMenuItem.Size = new System.Drawing.Size(222, 34);
-            this.exitToolStripMenuItem.Text = "Exit";
+            this.backToMenuToolStripMenuItem.Click += new System.EventHandler(this.backToMenuToolStripMenuItem_Click);
             // 
             // editToolStripMenuItem
             // 
@@ -184,7 +244,7 @@
             this.snapSettingsToolStripMenuItem,
             this.propertiesToolStripMenuItem});
             this.editToolStripMenuItem.Name = "editToolStripMenuItem";
-            this.editToolStripMenuItem.Size = new System.Drawing.Size(58, 30);
+            this.editToolStripMenuItem.Size = new System.Drawing.Size(58, 29);
             this.editToolStripMenuItem.Text = "Edit";
             // 
             // snapSettingsToolStripMenuItem
@@ -210,7 +270,7 @@
             this.toolStripSeparator1,
             this.aboutToolStripMenuItem});
             this.helpToolStripMenuItem.Name = "helpToolStripMenuItem";
-            this.helpToolStripMenuItem.Size = new System.Drawing.Size(65, 30);
+            this.helpToolStripMenuItem.Size = new System.Drawing.Size(65, 29);
             this.helpToolStripMenuItem.Text = "Help";
             // 
             // guideToolStripMenuItem
@@ -250,13 +310,13 @@
             this.overallLayoutPanel.Controls.Add(this.editorPanel, 1, 0);
             this.overallLayoutPanel.Controls.Add(this.tabControl1, 0, 0);
             this.overallLayoutPanel.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.overallLayoutPanel.Location = new System.Drawing.Point(0, 36);
+            this.overallLayoutPanel.Location = new System.Drawing.Point(0, 33);
             this.overallLayoutPanel.Margin = new System.Windows.Forms.Padding(0);
             this.overallLayoutPanel.Name = "overallLayoutPanel";
             this.overallLayoutPanel.RowCount = 1;
             this.overallLayoutPanel.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
             this.overallLayoutPanel.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 916F));
-            this.overallLayoutPanel.Size = new System.Drawing.Size(1662, 916);
+            this.overallLayoutPanel.Size = new System.Drawing.Size(1662, 919);
             this.overallLayoutPanel.TabIndex = 1;
             // 
             // editorPanel
@@ -270,13 +330,13 @@
             this.editorPanel.Location = new System.Drawing.Point(330, 0);
             this.editorPanel.Margin = new System.Windows.Forms.Padding(0);
             this.editorPanel.Name = "editorPanel";
-            this.editorPanel.Size = new System.Drawing.Size(1332, 916);
+            this.editorPanel.Size = new System.Drawing.Size(1332, 919);
             this.editorPanel.TabIndex = 2;
             // 
             // cutProgressBar
             // 
             this.cutProgressBar.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
-            this.cutProgressBar.Location = new System.Drawing.Point(384, 468);
+            this.cutProgressBar.Location = new System.Drawing.Point(384, 467);
             this.cutProgressBar.Name = "cutProgressBar";
             this.cutProgressBar.Size = new System.Drawing.Size(515, 31);
             this.cutProgressBar.Style = System.Windows.Forms.ProgressBarStyle.Continuous;
@@ -287,31 +347,94 @@
             // paintingPanel
             // 
             this.paintingPanel.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
-            this.paintingPanel.Controls.Add(this.brushButton);
+            this.paintingPanel.Controls.Add(this.clearButton);
+            this.paintingPanel.Controls.Add(this.pictureBox2);
+            this.paintingPanel.Controls.Add(this.paintRadioButton);
+            this.paintingPanel.Controls.Add(this.eraseRadioButton);
+            this.paintingPanel.Controls.Add(this.pictureBox1);
             this.paintingPanel.Controls.Add(this.brushSizeTextBox);
             this.paintingPanel.Controls.Add(this.label17);
-            this.paintingPanel.Location = new System.Drawing.Point(1139, 870);
+            this.paintingPanel.Location = new System.Drawing.Point(1058, 870);
             this.paintingPanel.Margin = new System.Windows.Forms.Padding(10);
             this.paintingPanel.Name = "paintingPanel";
-            this.paintingPanel.Size = new System.Drawing.Size(186, 39);
+            this.paintingPanel.Size = new System.Drawing.Size(267, 39);
             this.paintingPanel.TabIndex = 4;
             // 
-            // brushButton
+            // clearButton
             // 
-            this.brushButton.Image = global::Goopify.Properties.Resources.colorSwapBlack;
-            this.brushButton.InitialImage = ((System.Drawing.Image)(resources.GetObject("brushButton.InitialImage")));
-            this.brushButton.Location = new System.Drawing.Point(4, 6);
-            this.brushButton.Name = "brushButton";
-            this.brushButton.Size = new System.Drawing.Size(36, 28);
-            this.brushButton.SizeMode = System.Windows.Forms.PictureBoxSizeMode.StretchImage;
-            this.brushButton.TabIndex = 36;
-            this.brushButton.TabStop = false;
-            this.brushButton.Click += new System.EventHandler(this.brushButton_Click);
+            this.clearButton.BackgroundImage = ((System.Drawing.Image)(resources.GetObject("clearButton.BackgroundImage")));
+            this.clearButton.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch;
+            this.clearButton.FlatAppearance.BorderSize = 0;
+            this.clearButton.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.clearButton.Location = new System.Drawing.Point(84, 6);
+            this.clearButton.Name = "clearButton";
+            this.clearButton.Size = new System.Drawing.Size(28, 28);
+            this.clearButton.TabIndex = 45;
+            this.clearButton.UseVisualStyleBackColor = true;
+            this.clearButton.Click += new System.EventHandler(this.clearButton_Click);
+            // 
+            // pictureBox2
+            // 
+            this.pictureBox2.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(159)))), ((int)(((byte)(166)))), ((int)(((byte)(195)))));
+            this.pictureBox2.InitialImage = ((System.Drawing.Image)(resources.GetObject("pictureBox2.InitialImage")));
+            this.pictureBox2.Location = new System.Drawing.Point(119, 6);
+            this.pictureBox2.Name = "pictureBox2";
+            this.pictureBox2.Size = new System.Drawing.Size(2, 28);
+            this.pictureBox2.SizeMode = System.Windows.Forms.PictureBoxSizeMode.StretchImage;
+            this.pictureBox2.TabIndex = 44;
+            this.pictureBox2.TabStop = false;
+            // 
+            // paintRadioButton
+            // 
+            this.paintRadioButton.Appearance = System.Windows.Forms.Appearance.Button;
+            this.paintRadioButton.BackgroundImage = ((System.Drawing.Image)(resources.GetObject("paintRadioButton.BackgroundImage")));
+            this.paintRadioButton.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch;
+            this.paintRadioButton.Checked = true;
+            this.paintRadioButton.FlatAppearance.BorderSize = 0;
+            this.paintRadioButton.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.paintRadioButton.Location = new System.Drawing.Point(7, 6);
+            this.paintRadioButton.Margin = new System.Windows.Forms.Padding(0);
+            this.paintRadioButton.Name = "paintRadioButton";
+            this.paintRadioButton.RightToLeft = System.Windows.Forms.RightToLeft.No;
+            this.paintRadioButton.Size = new System.Drawing.Size(28, 28);
+            this.paintRadioButton.TabIndex = 40;
+            this.paintRadioButton.TabStop = true;
+            this.paintRadioButton.TextImageRelation = System.Windows.Forms.TextImageRelation.ImageAboveText;
+            this.paintRadioButton.UseVisualStyleBackColor = true;
+            this.paintRadioButton.CheckedChanged += new System.EventHandler(this.paintRadioButton_CheckedChanged);
+            // 
+            // eraseRadioButton
+            // 
+            this.eraseRadioButton.Appearance = System.Windows.Forms.Appearance.Button;
+            this.eraseRadioButton.BackgroundImage = ((System.Drawing.Image)(resources.GetObject("eraseRadioButton.BackgroundImage")));
+            this.eraseRadioButton.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch;
+            this.eraseRadioButton.FlatAppearance.BorderSize = 0;
+            this.eraseRadioButton.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.eraseRadioButton.Location = new System.Drawing.Point(41, 6);
+            this.eraseRadioButton.Margin = new System.Windows.Forms.Padding(0);
+            this.eraseRadioButton.Name = "eraseRadioButton";
+            this.eraseRadioButton.RightToLeft = System.Windows.Forms.RightToLeft.No;
+            this.eraseRadioButton.Size = new System.Drawing.Size(28, 28);
+            this.eraseRadioButton.TabIndex = 41;
+            this.eraseRadioButton.TextImageRelation = System.Windows.Forms.TextImageRelation.ImageAboveText;
+            this.eraseRadioButton.UseVisualStyleBackColor = true;
+            this.eraseRadioButton.CheckedChanged += new System.EventHandler(this.eraseRadioButton_CheckedChanged);
+            // 
+            // pictureBox1
+            // 
+            this.pictureBox1.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(159)))), ((int)(((byte)(166)))), ((int)(((byte)(195)))));
+            this.pictureBox1.InitialImage = ((System.Drawing.Image)(resources.GetObject("pictureBox1.InitialImage")));
+            this.pictureBox1.Location = new System.Drawing.Point(76, 6);
+            this.pictureBox1.Name = "pictureBox1";
+            this.pictureBox1.Size = new System.Drawing.Size(2, 28);
+            this.pictureBox1.SizeMode = System.Windows.Forms.PictureBoxSizeMode.StretchImage;
+            this.pictureBox1.TabIndex = 43;
+            this.pictureBox1.TabStop = false;
             // 
             // brushSizeTextBox
             // 
             this.brushSizeTextBox.Anchor = System.Windows.Forms.AnchorStyles.Right;
-            this.brushSizeTextBox.Location = new System.Drawing.Point(129, 8);
+            this.brushSizeTextBox.Location = new System.Drawing.Point(210, 8);
             this.brushSizeTextBox.MaxLength = 6;
             this.brushSizeTextBox.Name = "brushSizeTextBox";
             this.brushSizeTextBox.Size = new System.Drawing.Size(52, 26);
@@ -325,7 +448,7 @@
             this.label17.Anchor = System.Windows.Forms.AnchorStyles.Right;
             this.label17.AutoSize = true;
             this.label17.ForeColor = System.Drawing.Color.LightGray;
-            this.label17.Location = new System.Drawing.Point(40, 11);
+            this.label17.Location = new System.Drawing.Point(121, 11);
             this.label17.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.label17.Name = "label17";
             this.label17.Size = new System.Drawing.Size(90, 20);
@@ -378,7 +501,7 @@
             this.glControl1.Location = new System.Drawing.Point(0, 0);
             this.glControl1.Margin = new System.Windows.Forms.Padding(0);
             this.glControl1.Name = "glControl1";
-            this.glControl1.Size = new System.Drawing.Size(1332, 916);
+            this.glControl1.Size = new System.Drawing.Size(1332, 919);
             this.glControl1.TabIndex = 1;
             this.glControl1.VSync = false;
             this.glControl1.Load += new System.EventHandler(this.glControl1_Load);
@@ -461,14 +584,14 @@
             this.panel2.Location = new System.Drawing.Point(0, 18);
             this.panel2.Margin = new System.Windows.Forms.Padding(0);
             this.panel2.Name = "panel2";
-            this.panel2.Size = new System.Drawing.Size(315, 365);
+            this.panel2.Size = new System.Drawing.Size(315, 385);
             this.panel2.TabIndex = 6;
             // 
             // regionTypeLabel
             // 
             this.regionTypeLabel.AutoSize = true;
             this.regionTypeLabel.ForeColor = System.Drawing.Color.LightGray;
-            this.regionTypeLabel.Location = new System.Drawing.Point(20, 288);
+            this.regionTypeLabel.Location = new System.Drawing.Point(20, 309);
             this.regionTypeLabel.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.regionTypeLabel.Name = "regionTypeLabel";
             this.regionTypeLabel.Size = new System.Drawing.Size(102, 20);
@@ -488,7 +611,7 @@
             "WallPlusZ",
             "WallMinusZ",
             "Wave"});
-            this.regionTypeComboBox.Location = new System.Drawing.Point(21, 318);
+            this.regionTypeComboBox.Location = new System.Drawing.Point(21, 339);
             this.regionTypeComboBox.Name = "regionTypeComboBox";
             this.regionTypeComboBox.Size = new System.Drawing.Size(121, 28);
             this.regionTypeComboBox.TabIndex = 25;
@@ -527,7 +650,7 @@
             this.deleteRegionButton.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.deleteRegionButton.Font = new System.Drawing.Font("Microsoft Sans Serif", 8F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.deleteRegionButton.ForeColor = System.Drawing.Color.Black;
-            this.deleteRegionButton.Location = new System.Drawing.Point(250, 312);
+            this.deleteRegionButton.Location = new System.Drawing.Point(250, 333);
             this.deleteRegionButton.Margin = new System.Windows.Forms.Padding(0);
             this.deleteRegionButton.Name = "deleteRegionButton";
             this.deleteRegionButton.Size = new System.Drawing.Size(46, 37);
@@ -549,7 +672,7 @@
             this.goopRegionListBox.Margin = new System.Windows.Forms.Padding(0);
             this.goopRegionListBox.Name = "goopRegionListBox";
             this.goopRegionListBox.SelectionMode = System.Windows.Forms.SelectionMode.MultiExtended;
-            this.goopRegionListBox.Size = new System.Drawing.Size(300, 240);
+            this.goopRegionListBox.Size = new System.Drawing.Size(300, 260);
             this.goopRegionListBox.TabIndex = 0;
             this.goopRegionListBox.SelectedIndexChanged += new System.EventHandler(this.goopRegionListBox_SelectedIndexChanged);
             // 
@@ -562,7 +685,7 @@
             this.addRegionButton.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.addRegionButton.Font = new System.Drawing.Font("Microsoft Sans Serif", 8F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.addRegionButton.ForeColor = System.Drawing.Color.Black;
-            this.addRegionButton.Location = new System.Drawing.Point(158, 312);
+            this.addRegionButton.Location = new System.Drawing.Point(158, 333);
             this.addRegionButton.Margin = new System.Windows.Forms.Padding(0);
             this.addRegionButton.Name = "addRegionButton";
             this.addRegionButton.Size = new System.Drawing.Size(46, 37);
@@ -574,7 +697,7 @@
             // 
             // panel4
             // 
-            this.panel4.Location = new System.Drawing.Point(0, 383);
+            this.panel4.Location = new System.Drawing.Point(0, 403);
             this.panel4.Margin = new System.Windows.Forms.Padding(0);
             this.panel4.Name = "panel4";
             this.panel4.Size = new System.Drawing.Size(300, 29);
@@ -599,10 +722,10 @@
             this.panel5.Controls.Add(this.label5);
             this.panel5.Controls.Add(this.label4);
             this.panel5.Controls.Add(this.label3);
-            this.panel5.Location = new System.Drawing.Point(0, 412);
+            this.panel5.Location = new System.Drawing.Point(0, 432);
             this.panel5.Margin = new System.Windows.Forms.Padding(0);
             this.panel5.Name = "panel5";
-            this.panel5.Size = new System.Drawing.Size(315, 374);
+            this.panel5.Size = new System.Drawing.Size(315, 354);
             this.panel5.TabIndex = 9;
             // 
             // pixelHeight
@@ -628,6 +751,7 @@
             23,
             0,
             0});
+            this.pixelHeight.Visible = false;
             this.pixelHeight.ValueChanged += new System.EventHandler(this.pixelHeight_ValueChanged);
             this.pixelHeight.KeyDown += new System.Windows.Forms.KeyEventHandler(this.pixelHeight_KeyDown);
             this.pixelHeight.Validated += new System.EventHandler(this.pixelHeight_Validated);
@@ -643,6 +767,7 @@
             this.label13.TabIndex = 33;
             this.label13.Text = "Bmp Texture World Scale:";
             this.editorTooltip.SetToolTip(this.label13, "Number of units that would be represented by a pixel color");
+            this.label13.Visible = false;
             // 
             // autoHeightCheckBox
             // 
@@ -968,7 +1093,7 @@
             this.panel7.Location = new System.Drawing.Point(0, 10);
             this.panel7.Margin = new System.Windows.Forms.Padding(0);
             this.panel7.Name = "panel7";
-            this.panel7.Size = new System.Drawing.Size(315, 435);
+            this.panel7.Size = new System.Drawing.Size(315, 418);
             this.panel7.TabIndex = 6;
             // 
             // panel13
@@ -1008,13 +1133,13 @@
             this.visualRegionsListBox.Margin = new System.Windows.Forms.Padding(0);
             this.visualRegionsListBox.Name = "visualRegionsListBox";
             this.visualRegionsListBox.SelectionMode = System.Windows.Forms.SelectionMode.MultiExtended;
-            this.visualRegionsListBox.Size = new System.Drawing.Size(300, 380);
+            this.visualRegionsListBox.Size = new System.Drawing.Size(300, 360);
             this.visualRegionsListBox.TabIndex = 0;
             this.visualRegionsListBox.SelectedIndexChanged += new System.EventHandler(this.visualRegionsListBox_SelectedIndexChanged);
             // 
             // panel12
             // 
-            this.panel12.Location = new System.Drawing.Point(0, 445);
+            this.panel12.Location = new System.Drawing.Point(0, 428);
             this.panel12.Margin = new System.Windows.Forms.Padding(0);
             this.panel12.Name = "panel12";
             this.panel12.Size = new System.Drawing.Size(300, 10);
@@ -1023,6 +1148,8 @@
             // panel15
             // 
             this.panel15.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(37)))), ((int)(((byte)(41)))), ((int)(((byte)(58)))));
+            this.panel15.Controls.Add(this.textureRotationNumericUpDown);
+            this.panel15.Controls.Add(this.label14);
             this.panel15.Controls.Add(this.downloadBmpButton);
             this.panel15.Controls.Add(this.uploadBmpButton);
             this.panel15.Controls.Add(this.regionBpmPictureBox);
@@ -1035,11 +1162,43 @@
             this.panel15.Controls.Add(this.pollutionTypeComboBox);
             this.panel15.Controls.Add(this.label1);
             this.panel15.Controls.Add(this.panel16);
-            this.panel15.Location = new System.Drawing.Point(0, 455);
+            this.panel15.Location = new System.Drawing.Point(0, 438);
             this.panel15.Margin = new System.Windows.Forms.Padding(0);
             this.panel15.Name = "panel15";
-            this.panel15.Size = new System.Drawing.Size(315, 323);
+            this.panel15.Size = new System.Drawing.Size(315, 357);
             this.panel15.TabIndex = 26;
+            // 
+            // textureRotationNumericUpDown
+            // 
+            this.textureRotationNumericUpDown.DecimalPlaces = 3;
+            this.textureRotationNumericUpDown.Location = new System.Drawing.Point(148, 132);
+            this.textureRotationNumericUpDown.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
+            this.textureRotationNumericUpDown.Maximum = new decimal(new int[] {
+            1215752192,
+            23,
+            0,
+            0});
+            this.textureRotationNumericUpDown.Minimum = new decimal(new int[] {
+            1215752192,
+            23,
+            0,
+            -2147483648});
+            this.textureRotationNumericUpDown.Name = "textureRotationNumericUpDown";
+            this.textureRotationNumericUpDown.Size = new System.Drawing.Size(105, 26);
+            this.textureRotationNumericUpDown.TabIndex = 42;
+            this.editorTooltip.SetToolTip(this.textureRotationNumericUpDown, "Scale of the goop texture");
+            this.textureRotationNumericUpDown.ValueChanged += new System.EventHandler(this.textureRotationNumericUpDown_ValueChanged);
+            // 
+            // label14
+            // 
+            this.label14.AutoSize = true;
+            this.label14.ForeColor = System.Drawing.Color.LightGray;
+            this.label14.Location = new System.Drawing.Point(12, 130);
+            this.label14.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
+            this.label14.Name = "label14";
+            this.label14.Size = new System.Drawing.Size(131, 20);
+            this.label14.TabIndex = 41;
+            this.label14.Text = "Texture Rotation:";
             // 
             // downloadBmpButton
             // 
@@ -1049,7 +1208,7 @@
             this.downloadBmpButton.FlatAppearance.BorderSize = 2;
             this.downloadBmpButton.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.downloadBmpButton.Font = new System.Drawing.Font("Microsoft Sans Serif", 8F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.downloadBmpButton.Location = new System.Drawing.Point(263, 205);
+            this.downloadBmpButton.Location = new System.Drawing.Point(263, 230);
             this.downloadBmpButton.Margin = new System.Windows.Forms.Padding(0);
             this.downloadBmpButton.Name = "downloadBmpButton";
             this.downloadBmpButton.Size = new System.Drawing.Size(30, 30);
@@ -1067,7 +1226,7 @@
             this.uploadBmpButton.FlatAppearance.BorderSize = 2;
             this.uploadBmpButton.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.uploadBmpButton.Font = new System.Drawing.Font("Microsoft Sans Serif", 8F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.uploadBmpButton.Location = new System.Drawing.Point(263, 156);
+            this.uploadBmpButton.Location = new System.Drawing.Point(263, 181);
             this.uploadBmpButton.Margin = new System.Windows.Forms.Padding(0);
             this.uploadBmpButton.Name = "uploadBmpButton";
             this.uploadBmpButton.Size = new System.Drawing.Size(30, 30);
@@ -1081,7 +1240,7 @@
             // 
             this.regionBpmPictureBox.Image = global::Goopify.Properties.Resources.defaultGoopTexture;
             this.regionBpmPictureBox.InitialImage = ((System.Drawing.Image)(resources.GetObject("regionBpmPictureBox.InitialImage")));
-            this.regionBpmPictureBox.Location = new System.Drawing.Point(153, 147);
+            this.regionBpmPictureBox.Location = new System.Drawing.Point(153, 172);
             this.regionBpmPictureBox.Margin = new System.Windows.Forms.Padding(0);
             this.regionBpmPictureBox.Name = "regionBpmPictureBox";
             this.regionBpmPictureBox.Size = new System.Drawing.Size(100, 100);
@@ -1093,7 +1252,7 @@
             // 
             this.label16.AutoSize = true;
             this.label16.ForeColor = System.Drawing.Color.LightGray;
-            this.label16.Location = new System.Drawing.Point(12, 156);
+            this.label16.Location = new System.Drawing.Point(12, 181);
             this.label16.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.label16.Name = "label16";
             this.label16.Size = new System.Drawing.Size(130, 20);
@@ -1126,7 +1285,7 @@
             this.label12.AutoSize = true;
             this.label12.Font = new System.Drawing.Font("Microsoft Sans Serif", 7F, System.Drawing.FontStyle.Italic, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.label12.ForeColor = System.Drawing.Color.LightGray;
-            this.label12.Location = new System.Drawing.Point(15, 256);
+            this.label12.Location = new System.Drawing.Point(15, 290);
             this.label12.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.label12.Name = "label12";
             this.label12.Size = new System.Drawing.Size(75, 17);
@@ -1136,7 +1295,12 @@
             // textureScaleNumericUpDown
             // 
             this.textureScaleNumericUpDown.DecimalPlaces = 3;
-            this.textureScaleNumericUpDown.Location = new System.Drawing.Point(140, 93);
+            this.textureScaleNumericUpDown.Increment = new decimal(new int[] {
+            1,
+            0,
+            0,
+            65536});
+            this.textureScaleNumericUpDown.Location = new System.Drawing.Point(140, 91);
             this.textureScaleNumericUpDown.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
             this.textureScaleNumericUpDown.Maximum = new decimal(new int[] {
             1215752192,
@@ -1163,7 +1327,7 @@
             // 
             this.label9.AutoSize = true;
             this.label9.ForeColor = System.Drawing.Color.LightGray;
-            this.label9.Location = new System.Drawing.Point(12, 94);
+            this.label9.Location = new System.Drawing.Point(12, 89);
             this.label9.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.label9.Name = "label9";
             this.label9.Size = new System.Drawing.Size(110, 20);
@@ -1195,7 +1359,7 @@
             "5 (Death [UNUSED])",
             "6 (Nothing [UNUSED])",
             "7 (Fire [UNUSED])"});
-            this.pollutionTypeComboBox.Location = new System.Drawing.Point(16, 280);
+            this.pollutionTypeComboBox.Location = new System.Drawing.Point(16, 314);
             this.pollutionTypeComboBox.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
             this.pollutionTypeComboBox.Name = "pollutionTypeComboBox";
             this.pollutionTypeComboBox.RightToLeft = System.Windows.Forms.RightToLeft.No;
@@ -1210,7 +1374,7 @@
             // 
             this.label1.AutoSize = true;
             this.label1.ForeColor = System.Drawing.Color.LightGray;
-            this.label1.Location = new System.Drawing.Point(14, 233);
+            this.label1.Location = new System.Drawing.Point(14, 267);
             this.label1.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.label1.Name = "label1";
             this.label1.Size = new System.Drawing.Size(111, 20);
@@ -1242,7 +1406,7 @@
             // 
             // panel17
             // 
-            this.panel17.Location = new System.Drawing.Point(0, 778);
+            this.panel17.Location = new System.Drawing.Point(0, 795);
             this.panel17.Margin = new System.Windows.Forms.Padding(0);
             this.panel17.Name = "panel17";
             this.panel17.Size = new System.Drawing.Size(300, 10);
@@ -1256,7 +1420,7 @@
             this.finishButton.FlatAppearance.BorderSize = 2;
             this.finishButton.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.finishButton.Font = new System.Drawing.Font("Microsoft Sans Serif", 10F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.finishButton.Location = new System.Drawing.Point(16, 788);
+            this.finishButton.Location = new System.Drawing.Point(16, 805);
             this.finishButton.Margin = new System.Windows.Forms.Padding(0);
             this.finishButton.Name = "finishButton";
             this.finishButton.Size = new System.Drawing.Size(282, 68);
@@ -1297,7 +1461,8 @@
             this.editorPanel.PerformLayout();
             this.paintingPanel.ResumeLayout(false);
             this.paintingPanel.PerformLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.brushButton)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.pictureBox2)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).EndInit();
             this.posPanel.ResumeLayout(false);
             this.posPanel.PerformLayout();
             this.tabControl1.ResumeLayout(false);
@@ -1326,6 +1491,7 @@
             this.panel13.PerformLayout();
             this.panel15.ResumeLayout(false);
             this.panel15.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.textureRotationNumericUpDown)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.regionBpmPictureBox)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.textureScaleNumericUpDown)).EndInit();
             this.panel16.ResumeLayout(false);
@@ -1352,7 +1518,6 @@
         private System.Windows.Forms.ToolStripMenuItem githubRepoToolStripMenuItem;
         private System.Windows.Forms.ToolStripSeparator toolStripSeparator1;
         private System.Windows.Forms.ToolStripMenuItem aboutToolStripMenuItem;
-        private System.Windows.Forms.ToolStripMenuItem exitToolStripMenuItem;
         private System.Windows.Forms.TabControl tabControl1;
         private System.Windows.Forms.TabPage tabPage1;
         private System.Windows.Forms.TabPage tabPage2;
@@ -1415,12 +1580,24 @@
         private System.Windows.Forms.ToolStripMenuItem propertiesToolStripMenuItem;
         private System.Windows.Forms.Label label17;
         private System.Windows.Forms.TextBox brushSizeTextBox;
-        private System.Windows.Forms.PictureBox brushButton;
         private System.Windows.Forms.Panel panel8;
         private System.Windows.Forms.ProgressBar cutProgressBar;
         private System.Windows.Forms.ToolStripMenuItem guideToolStripMenuItem;
         private System.Windows.Forms.ToolStripSeparator toolStripSeparator2;
         private System.Windows.Forms.ToolStripMenuItem snapSettingsToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem saveAllMenuItem;
+        private System.Windows.Forms.RadioButton paintRadioButton;
+        private System.Windows.Forms.RadioButton eraseRadioButton;
+        private System.Windows.Forms.PictureBox pictureBox1;
+        private System.Windows.Forms.ToolStripMenuItem saveMenuItem;
+        private System.Windows.Forms.ToolStripSeparator toolStripSeparator3;
+        private System.Windows.Forms.ToolStripMenuItem newMenuItem;
+        private System.Windows.Forms.ToolStripSeparator toolStripSeparator4;
+        private System.Windows.Forms.ToolStripMenuItem openMenuItem;
+        private System.Windows.Forms.NumericUpDown textureRotationNumericUpDown;
+        private System.Windows.Forms.Label label14;
+        private System.Windows.Forms.Button clearButton;
+        private System.Windows.Forms.PictureBox pictureBox2;
     }
 }
 
