@@ -33,6 +33,7 @@ The tool is now bundled with [SuperBMD v2.4.7.1](http://https://github.com/Renol
 
 ### Creating a new goop
 To create goop for a level, you'll start by loading the collision of the map (map.col file). From there, you'll be able to add different goop "regions" over the map. You can reposition and resize these anywhere on the map. The best practice is to create multiple smaller regions to only cover what you need in goop rather than one large one with lots of unused space.
+
 <img src="https://github.com/user-attachments/assets/cf92ce95-0b3c-47c8-93ad-cf80b29ba4b9" text-align="center" width="48%" /> <img src="https://github.com/user-attachments/assets/8eba54df-8a03-428e-9afc-ea8898c2d25c" text-align="center" width="48%" />
 
 By default, all goop regions will try to snap their height to just below the lowest collision that mario would be able to walk on. You can toggle this off, but make sure that the region is just below the ground that you want the goop to appear on.
