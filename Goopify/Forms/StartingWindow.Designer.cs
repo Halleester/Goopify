@@ -39,6 +39,7 @@ namespace Goopify
             this.panel1 = new System.Windows.Forms.Panel();
             this.helpButton = new System.Windows.Forms.Button();
             this.startingTooltip = new System.Windows.Forms.ToolTip(this.components);
+            this.label2 = new System.Windows.Forms.Label();
             ((System.ComponentModel.ISupportInitialize)(this.toolIcon)).BeginInit();
             this.panel1.SuspendLayout();
             this.SuspendLayout();
@@ -131,6 +132,7 @@ namespace Goopify
             this.panel1.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(32)))), ((int)(((byte)(36)))), ((int)(((byte)(51)))));
             this.panel1.Controls.Add(this.toolIcon);
             this.panel1.Controls.Add(this.label1);
+            this.panel1.Controls.Add(this.label2);
             this.panel1.Location = new System.Drawing.Point(88, 32);
             this.panel1.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
             this.panel1.Name = "panel1";
@@ -152,9 +154,24 @@ namespace Goopify
             this.helpButton.Size = new System.Drawing.Size(39, 36);
             this.helpButton.TabIndex = 7;
             this.helpButton.Text = "?";
-            this.startingTooltip.SetToolTip(this.helpButton, "Help");
+            this.startingTooltip.SetToolTip(this.helpButton, "Guide on what Goopify is and how to use it");
             this.helpButton.UseVisualStyleBackColor = false;
+            this.helpButton.Visible = false;
             this.helpButton.Click += new System.EventHandler(this.helpButton_Click);
+            // 
+            // label2
+            // 
+            this.label2.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
+            this.label2.AutoSize = true;
+            this.label2.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(32)))), ((int)(((byte)(36)))), ((int)(((byte)(51)))));
+            this.label2.Font = new System.Drawing.Font("Lucida Sans", 8F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.label2.ForeColor = System.Drawing.Color.LightGray;
+            this.label2.Location = new System.Drawing.Point(559, 143);
+            this.label2.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
+            this.label2.Name = "label2";
+            this.label2.Size = new System.Drawing.Size(51, 18);
+            this.label2.TabIndex = 5;
+            this.label2.Text = "v0.82";
             // 
             // StartingWindow
             // 
@@ -189,5 +206,6 @@ namespace Goopify
         private System.Windows.Forms.Panel panel1;
         private System.Windows.Forms.ToolTip startingTooltip;
         private System.Windows.Forms.Button helpButton;
+        private System.Windows.Forms.Label label2;
     }
 }

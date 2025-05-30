@@ -123,6 +123,7 @@ namespace Goopify.Properties {
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute(@"<?xml version=""1.0"" encoding=""utf-16""?>
 <ArrayOfInt xmlns:xsi=""http://www.w3.org/2001/XMLSchema-instance"" xmlns:xsd=""http://www.w3.org/2001/XMLSchema"">
+  <int>7</int>
   <int>256</int>
   <int>257</int>
   <int>258</int>
@@ -147,12 +148,12 @@ namespace Goopify.Properties {
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("20")]
-        public int paintUndoSize {
+        public int undoSteps {
             get {
-                return ((int)(this["paintUndoSize"]));
+                return ((int)(this["undoSteps"]));
             }
             set {
-                this["paintUndoSize"] = value;
+                this["undoSteps"] = value;
             }
         }
         
@@ -249,6 +250,90 @@ namespace Goopify.Properties {
             }
             set {
                 this["extractDialogueRestore"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("True")]
+        public bool ignoreColTypes {
+            get {
+                return ((bool)(this["ignoreColTypes"]));
+            }
+            set {
+                this["ignoreColTypes"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("1")]
+        public float cameraSpeed {
+            get {
+                return ((float)(this["cameraSpeed"]));
+            }
+            set {
+                this["cameraSpeed"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("1024")]
+        public int regionMinSize {
+            get {
+                return ((int)(this["regionMinSize"]));
+            }
+            set {
+                this["regionMinSize"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("16384")]
+        public int regionMaxSize {
+            get {
+                return ((int)(this["regionMaxSize"]));
+            }
+            set {
+                this["regionMaxSize"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("False")]
+        public bool devMode {
+            get {
+                return ((bool)(this["devMode"]));
+            }
+            set {
+                this["devMode"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("7")]
+        public float regionFloorOffset {
+            get {
+                return ((float)(this["regionFloorOffset"]));
+            }
+            set {
+                this["regionFloorOffset"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("True")]
+        public bool snapToPowers {
+            get {
+                return ((bool)(this["snapToPowers"]));
+            }
+            set {
+                this["snapToPowers"] = value;
             }
         }
     }

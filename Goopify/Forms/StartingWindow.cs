@@ -22,23 +22,13 @@ namespace Goopify
         private const bool testEditWithoutMap = false;
         private const bool instantEditor = false;
 
-        public StartingWindow(string instantLoad = "")
+        public StartingWindow()
         {
             InitializeComponent();
 
             //ResetSettings();
 
             SetupInfoPathsIfNeeded();
-
-            if(instantLoad != "")
-            {
-                // Open and setup the window
-                EditorWindow editorWindow = new EditorWindow();
-                editorWindow.Show();
-                this.Hide();
-
-                editorWindow.LoadGoopMap(instantLoad);
-            }
         }
 
         /// <summary>
@@ -81,24 +71,22 @@ namespace Goopify
                 Properties.Settings.Default.loadColDialogueRestore = Path.GetDirectoryName(fileDialog.FileName);
                 Properties.Settings.Default.Save();
                 // Open and setup the window
-                EditorWindow editorWindow = new EditorWindow();
+                EditorWindow editorWindow = new EditorWindow(fileDialog.FileName);
                 editorWindow.Show();
                 this.Hide();
-
-                editorWindow.NewGoopMap(fileDialog.FileName);
             }
         }
 
         private void SetupInfoPathsIfNeeded()
         {
             // Setup SuperBMD
-            string defaultSuperBmdPath = Directory.GetCurrentDirectory() + @"\SuperBMD_2.4.7.1\SuperBMD.exe";
+            string defaultSuperBmdPath = AppDomain.CurrentDomain.BaseDirectory + @"\SuperBMD_2.4.7.1\SuperBMD.exe";
             if(!File.Exists(defaultSuperBmdPath))
             {
                 if (Properties.Settings.Default.superBmdPath == "null" || !File.Exists(Properties.Settings.Default.superBmdPath))
                 {
                     // Try to get a local version of SuperBMD from the build first
-                    string superBmdPath = Directory.GetCurrentDirectory() + Properties.Settings.Default.superBmdPath;
+                    string superBmdPath = AppDomain.CurrentDomain.BaseDirectory + Properties.Settings.Default.superBmdPath;
                     if(File.Exists(Properties.Settings.Default.superBmdPath))
                     {
                         Properties.Settings.Default.superBmdPath = superBmdPath;
@@ -138,7 +126,7 @@ namespace Goopify
                     using (WebClient wc = new WebClient())
                     {
                         string zipUrl = "https://drive.google.com/uc?export=download&id=1UhCAdBIxxPWgdwRRRPq1VHCL0VCqBS7K";
-                        string zipSaveLoc = Directory.GetCurrentDirectory() + @"/GoopResources.zip";
+                        string zipSaveLoc = AppDomain.CurrentDomain.BaseDirectory + @"/GoopResources.zip";
                         wc.DownloadFileAsync(new Uri(zipUrl), zipSaveLoc);
                         wc.DownloadFileCompleted += Wc_DownloadFileCompleted;
                     }
@@ -159,7 +147,7 @@ namespace Goopify
         private void Wc_DownloadFileCompleted(object sender, AsyncCompletedEventArgs e)
         {
             if(e.Error == null) {
-                ZipFile.ExtractToDirectory(Directory.GetCurrentDirectory() + @"/GoopResources.zip", Directory.GetCurrentDirectory());
+                ZipFile.ExtractToDirectory(AppDomain.CurrentDomain.BaseDirectory + @"/GoopResources.zip", AppDomain.CurrentDomain.BaseDirectory);
                 MessageBox.Show("GoopResources successfully downloaded!", "Goopify Setup");
             } else {
                 MessageBox.Show("Error while downloading GoopResources: " + e.Error.ToString(), "Goopify Setup");
@@ -174,8 +162,7 @@ namespace Goopify
 
         private void helpButton_Click(object sender, EventArgs e)
         {
-            HelpWindow helpWindow = new HelpWindow();
-            helpWindow.Show();
+            System.Diagnostics.Process.Start("https://github.com/Halleester/Goopify/blob/main/README.md");
         }
 
         private void editGoopmapButton_Click(object sender, EventArgs e)
@@ -189,11 +176,9 @@ namespace Goopify
                 Properties.Settings.Default.loadGoopDialogueRestore = Path.GetDirectoryName(fileDialog.FileName);
                 Properties.Settings.Default.Save();
                 // Open and setup the window
-                EditorWindow editorWindow = new EditorWindow();
+                EditorWindow editorWindow = new EditorWindow(fileDialog.FileName);
                 editorWindow.Show();
                 this.Hide();
-
-                editorWindow.LoadGoopMap(fileDialog.FileName);
             }
         }
     }

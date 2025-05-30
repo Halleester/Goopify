@@ -72,7 +72,6 @@ C:\Users\alexh\source\repos\Goopify\Goopify\obj\Debug\Goopify.HelpWindow.resourc
 C:\Users\alexh\source\repos\Goopify\Goopify\obj\Debug\Goopify.Forms.ToolForms.OpenTKTesting.resources
 C:\Users\alexh\source\repos\Goopify\Goopify\obj\Debug\Goopify.PropertiesSubform.resources
 C:\Users\alexh\source\repos\Goopify\Goopify\obj\Debug\Goopify.Forms.ToolForms.GuideSubform.resources
-C:\Users\alexh\source\repos\Goopify\Goopify\obj\Debug\Goopify.Forms.ToolForms.SnapSettingsSubform.resources
 C:\Users\alexh\source\repos\Goopify\Goopify\obj\Debug\Goopify.Properties.Resources.resources
 C:\Users\alexh\source\repos\Goopify\Goopify\obj\Debug\Goopify.StartingWindow.resources
 C:\Users\alexh\source\repos\Goopify\Goopify\obj\Debug\Goopify.csproj.GenerateResource.cache

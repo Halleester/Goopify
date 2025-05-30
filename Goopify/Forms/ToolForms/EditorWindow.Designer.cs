@@ -40,14 +40,12 @@
             this.toolStripSeparator3 = new System.Windows.Forms.ToolStripSeparator();
             this.backToMenuToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.editToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.snapSettingsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.propertiesToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.helpToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.guideToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.toolStripSeparator2 = new System.Windows.Forms.ToolStripSeparator();
             this.githubRepoToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.toolStripSeparator1 = new System.Windows.Forms.ToolStripSeparator();
-            this.aboutToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.overallLayoutPanel = new System.Windows.Forms.TableLayoutPanel();
             this.editorPanel = new System.Windows.Forms.Panel();
             this.cutProgressBar = new System.Windows.Forms.ProgressBar();
@@ -241,24 +239,17 @@
             // editToolStripMenuItem
             // 
             this.editToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.snapSettingsToolStripMenuItem,
             this.propertiesToolStripMenuItem});
             this.editToolStripMenuItem.Name = "editToolStripMenuItem";
             this.editToolStripMenuItem.Size = new System.Drawing.Size(58, 29);
             this.editToolStripMenuItem.Text = "Edit";
             // 
-            // snapSettingsToolStripMenuItem
-            // 
-            this.snapSettingsToolStripMenuItem.Name = "snapSettingsToolStripMenuItem";
-            this.snapSettingsToolStripMenuItem.Size = new System.Drawing.Size(235, 34);
-            this.snapSettingsToolStripMenuItem.Text = "Snap Settings...";
-            this.snapSettingsToolStripMenuItem.Click += new System.EventHandler(this.snapSettingsToolStripMenuItem_Click);
-            // 
             // propertiesToolStripMenuItem
             // 
+            this.propertiesToolStripMenuItem.Image = global::Goopify.Properties.Resources.cog_solid;
             this.propertiesToolStripMenuItem.Name = "propertiesToolStripMenuItem";
-            this.propertiesToolStripMenuItem.Size = new System.Drawing.Size(235, 34);
-            this.propertiesToolStripMenuItem.Text = "Properties";
+            this.propertiesToolStripMenuItem.Size = new System.Drawing.Size(206, 34);
+            this.propertiesToolStripMenuItem.Text = "Properties...";
             this.propertiesToolStripMenuItem.Click += new System.EventHandler(this.propertiesToolStripMenuItem_Click);
             // 
             // helpToolStripMenuItem
@@ -267,8 +258,7 @@
             this.guideToolStripMenuItem,
             this.toolStripSeparator2,
             this.githubRepoToolStripMenuItem,
-            this.toolStripSeparator1,
-            this.aboutToolStripMenuItem});
+            this.toolStripSeparator1});
             this.helpToolStripMenuItem.Name = "helpToolStripMenuItem";
             this.helpToolStripMenuItem.Size = new System.Drawing.Size(65, 29);
             this.helpToolStripMenuItem.Text = "Help";
@@ -276,31 +266,26 @@
             // guideToolStripMenuItem
             // 
             this.guideToolStripMenuItem.Name = "guideToolStripMenuItem";
-            this.guideToolStripMenuItem.Size = new System.Drawing.Size(213, 34);
+            this.guideToolStripMenuItem.Size = new System.Drawing.Size(270, 34);
             this.guideToolStripMenuItem.Text = "Guide";
+            this.guideToolStripMenuItem.Click += new System.EventHandler(this.guideToolStripMenuItem_Click);
             // 
             // toolStripSeparator2
             // 
             this.toolStripSeparator2.Name = "toolStripSeparator2";
-            this.toolStripSeparator2.Size = new System.Drawing.Size(210, 6);
+            this.toolStripSeparator2.Size = new System.Drawing.Size(267, 6);
             // 
             // githubRepoToolStripMenuItem
             // 
             this.githubRepoToolStripMenuItem.Name = "githubRepoToolStripMenuItem";
-            this.githubRepoToolStripMenuItem.Size = new System.Drawing.Size(213, 34);
+            this.githubRepoToolStripMenuItem.Size = new System.Drawing.Size(270, 34);
             this.githubRepoToolStripMenuItem.Text = "Github Repo";
             this.githubRepoToolStripMenuItem.Click += new System.EventHandler(this.githubRepoToolStripMenuItem_Click);
             // 
             // toolStripSeparator1
             // 
             this.toolStripSeparator1.Name = "toolStripSeparator1";
-            this.toolStripSeparator1.Size = new System.Drawing.Size(210, 6);
-            // 
-            // aboutToolStripMenuItem
-            // 
-            this.aboutToolStripMenuItem.Name = "aboutToolStripMenuItem";
-            this.aboutToolStripMenuItem.Size = new System.Drawing.Size(213, 34);
-            this.aboutToolStripMenuItem.Text = "Credits";
+            this.toolStripSeparator1.Size = new System.Drawing.Size(267, 6);
             // 
             // overallLayoutPanel
             // 
@@ -542,7 +527,7 @@
             this.tabPage1.Name = "tabPage1";
             this.tabPage1.Size = new System.Drawing.Size(322, 887);
             this.tabPage1.TabIndex = 0;
-            this.tabPage1.Text = "Creation";
+            this.tabPage1.Text = "Placement";
             // 
             // sidebarContentFlowLayoutPanel
             // 
@@ -1055,7 +1040,7 @@
             this.tabPage2.Name = "tabPage2";
             this.tabPage2.Size = new System.Drawing.Size(322, 887);
             this.tabPage2.TabIndex = 1;
-            this.tabPage2.Text = "Settings";
+            this.tabPage2.Text = "Properties";
             // 
             // flowLayoutPanel1
             // 
@@ -1453,6 +1438,7 @@
             this.Name = "EditorWindow";
             this.RightToLeft = System.Windows.Forms.RightToLeft.No;
             this.Text = "Goopify";
+            this.Load += new System.EventHandler(this.EditorWindow_Load);
             this.KeyDown += new System.Windows.Forms.KeyEventHandler(this.MainWindow_KeyDown);
             this.menuStrip1.ResumeLayout(false);
             this.menuStrip1.PerformLayout();
@@ -1517,7 +1503,6 @@
         private System.Windows.Forms.ToolStripMenuItem helpToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem githubRepoToolStripMenuItem;
         private System.Windows.Forms.ToolStripSeparator toolStripSeparator1;
-        private System.Windows.Forms.ToolStripMenuItem aboutToolStripMenuItem;
         private System.Windows.Forms.TabControl tabControl1;
         private System.Windows.Forms.TabPage tabPage1;
         private System.Windows.Forms.TabPage tabPage2;
@@ -1584,7 +1569,6 @@
         private System.Windows.Forms.ProgressBar cutProgressBar;
         private System.Windows.Forms.ToolStripMenuItem guideToolStripMenuItem;
         private System.Windows.Forms.ToolStripSeparator toolStripSeparator2;
-        private System.Windows.Forms.ToolStripMenuItem snapSettingsToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem saveAllMenuItem;
         private System.Windows.Forms.RadioButton paintRadioButton;
         private System.Windows.Forms.RadioButton eraseRadioButton;

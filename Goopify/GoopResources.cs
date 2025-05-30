@@ -289,12 +289,12 @@ namespace Goopify
         public static string GetDefaultGoop()
         {
             // First try to get brown goop, then the first goop in list, otherwise do fallback goop 
-            if(Directory.Exists(Directory.GetCurrentDirectory() + resourcePath))
+            if(Directory.Exists(AppDomain.CurrentDomain.BaseDirectory + resourcePath))
             {
-                if(Directory.Exists(Directory.GetCurrentDirectory() + resourcePath + @"\BrownGoop")) {
+                if(Directory.Exists(AppDomain.CurrentDomain.BaseDirectory + resourcePath + @"\BrownGoop")) {
                     return "BrownGoop";
                 } else {
-                    string[] subdirs = Directory.GetDirectories(Directory.GetCurrentDirectory() + resourcePath);
+                    string[] subdirs = Directory.GetDirectories(AppDomain.CurrentDomain.BaseDirectory + resourcePath);
                     return subdirs.Length > 0 ? Path.GetFileName(subdirs[0]) : "";
                 }
             } else
@@ -315,28 +315,28 @@ namespace Goopify
         /// <returns></returns>
         public static string[] GetParticlePaths(string goopTypeFolderName)
         {
-            string goopFolderPath = Directory.GetCurrentDirectory() + resourcePath + @"\" + goopTypeFolderName;
+            string goopFolderPath = AppDomain.CurrentDomain.BaseDirectory + resourcePath + @"\" + goopTypeFolderName;
             string[] particlePaths = Directory.GetFiles(goopFolderPath, "*.jpa");
             return particlePaths;
         }
 
         public static string[] GetBtiPaths(string goopTypeFolderName)
         {
-            string btiPath = Directory.GetCurrentDirectory() + resourcePath + @"\" + goopTypeFolderName;
+            string btiPath = AppDomain.CurrentDomain.BaseDirectory + resourcePath + @"\" + goopTypeFolderName;
             string[] btiPaths = Directory.GetFiles(btiPath, "*.bti");
             return btiPaths;
         }
 
         public static string[] GetBtkPaths(string goopTypeFolderName)
         {
-            string btkPath = Directory.GetCurrentDirectory() + resourcePath + @"\" + goopTypeFolderName;
+            string btkPath = AppDomain.CurrentDomain.BaseDirectory + resourcePath + @"\" + goopTypeFolderName;
             string[] btkPaths = Directory.GetFiles(btkPath, "*.btk");
             return btkPaths;
         }
 
         public static string GetBtkPath(string goopTypeFolderName)
         {
-            return Directory.GetCurrentDirectory() + resourcePath + @"\" + goopTypeFolderName + @"\textureAnim.btk";
+            return AppDomain.CurrentDomain.BaseDirectory + resourcePath + @"\" + goopTypeFolderName + @"\textureAnim.btk";
         }
 
         /// <summary>
@@ -346,21 +346,21 @@ namespace Goopify
         /// <returns></returns>
         public static string GetGlobalResourcesPath(string goopTypeFolderName)
         {
-            string resourcesPath = Directory.GetCurrentDirectory() + resourcePath + @"\" + goopTypeFolderName + @"\" + matDumpFolder;
+            string resourcesPath = AppDomain.CurrentDomain.BaseDirectory + resourcePath + @"\" + goopTypeFolderName + @"\" + matDumpFolder;
             return Directory.Exists(resourcesPath) ? resourcesPath : "";
         }
 
         public static string GetResourcesFolderPath()
         {
-            return Directory.GetCurrentDirectory() + resourcePath;
+            return AppDomain.CurrentDomain.BaseDirectory + resourcePath;
         }
 
         public static System.Drawing.Bitmap GetGoopVisual(string goopTypeFolderName)
         {
-            string goopFolder = Directory.GetCurrentDirectory() + resourcePath + @"\" + goopTypeFolderName;
+            string goopFolder = AppDomain.CurrentDomain.BaseDirectory + resourcePath + @"\" + goopTypeFolderName;
             string visualPath = goopFolder + @"\visualPreview.png";
             if(goopTypeFolderName == "" || !Directory.Exists(goopFolder)) {
-                visualPath = Directory.GetCurrentDirectory() + @"Resources\FallbackGoop\visualPreview.png";
+                visualPath = AppDomain.CurrentDomain.BaseDirectory + @"Resources\FallbackGoop\visualPreview.png";
             }
             return File.Exists(visualPath) ? new System.Drawing.Bitmap(visualPath) : Properties.Resources.defaultGoopTexture;
         }
@@ -385,7 +385,7 @@ namespace Goopify
 
         public static string GetGlobalResourcesPath(string goopTypeFolderName)
         {
-            string resourcesPath = Directory.GetCurrentDirectory() + "\\" + resourcePath + "\\" + goopTypeFolderName + "\\" + matDumpFolder;
+            string resourcesPath = AppDomain.CurrentDomain.BaseDirectory + "\\" + resourcePath + "\\" + goopTypeFolderName + "\\" + matDumpFolder;
             return Directory.Exists(resourcesPath) ? resourcesPath : "";
         }
 

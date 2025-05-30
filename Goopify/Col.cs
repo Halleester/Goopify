@@ -1111,11 +1111,14 @@ namespace Goopify
             {
                 // Remove triangles that are of a collision type we don't want
                 bool isInvalidCol = false;
-                foreach(int removeColType in colTypesToRemove)
+                if(colTypesToRemove != null)
                 {
-                    if(currentTriangle.colParameter == removeColType || currentTriangle.colParameter == (removeColType + 32768)) {
-                        isInvalidCol = true;
-                        break;
+                    foreach(int removeColType in colTypesToRemove)
+                    {
+                        if(currentTriangle.colParameter == removeColType || currentTriangle.colParameter == (removeColType + 32768)) {
+                            isInvalidCol = true;
+                            break;
+                        }
                     }
                 }
                 if(isInvalidCol) { continue; }
@@ -1266,7 +1269,7 @@ namespace Goopify
                 string daePath = "modelExport.dae";
                 CreateDaeFromCol(daePath);
 
-                string localPath = Directory.GetCurrentDirectory();
+                string localPath = AppDomain.CurrentDomain.BaseDirectory;
 
                 // Save an image the size of the bmp so the pollution can use it to compile the model correctly
                 string pollutionImgPath = resourcePath + "\\BmpTexture.png";

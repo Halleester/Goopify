@@ -29,6 +29,7 @@
     <Setting Name="colTypesToRemove" Type="System.Int32[]" Scope="User">
       <Value Profile="(Default)">&lt;?xml version="1.0" encoding="utf-16"?&gt;
 &lt;ArrayOfInt xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema"&gt;
+  &lt;int&gt;7&lt;/int&gt;
   &lt;int&gt;256&lt;/int&gt;
   &lt;int&gt;257&lt;/int&gt;
   &lt;int&gt;258&lt;/int&gt;
@@ -42,7 +43,7 @@
   &lt;int&gt;2048&lt;/int&gt;
 &lt;/ArrayOfInt&gt;</Value>
     </Setting>
-    <Setting Name="paintUndoSize" Type="System.Int32" Scope="User">
+    <Setting Name="undoSteps" Type="System.Int32" Scope="User">
       <Value Profile="(Default)">20</Value>
     </Setting>
     <Setting Name="colorPairings" Type="System.String" Scope="User">
@@ -68,6 +69,27 @@
     </Setting>
     <Setting Name="extractDialogueRestore" Type="System.String" Scope="User">
       <Value Profile="(Default)">c:\</Value>
+    </Setting>
+    <Setting Name="ignoreColTypes" Type="System.Boolean" Scope="User">
+      <Value Profile="(Default)">True</Value>
+    </Setting>
+    <Setting Name="cameraSpeed" Type="System.Single" Scope="User">
+      <Value Profile="(Default)">1</Value>
+    </Setting>
+    <Setting Name="regionMinSize" Type="System.Int32" Scope="User">
+      <Value Profile="(Default)">1024</Value>
+    </Setting>
+    <Setting Name="regionMaxSize" Type="System.Int32" Scope="User">
+      <Value Profile="(Default)">16384</Value>
+    </Setting>
+    <Setting Name="devMode" Type="System.Boolean" Scope="User">
+      <Value Profile="(Default)">False</Value>
+    </Setting>
+    <Setting Name="regionFloorOffset" Type="System.Single" Scope="User">
+      <Value Profile="(Default)">7</Value>
+    </Setting>
+    <Setting Name="snapToPowers" Type="System.Boolean" Scope="User">
+      <Value Profile="(Default)">True</Value>
     </Setting>
   </Settings>
 </SettingsFile>

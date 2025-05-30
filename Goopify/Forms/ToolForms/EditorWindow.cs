@@ -44,79 +44,9 @@ namespace Goopify
             {
                 if (Program.startingForm != null)
                     Program.startingForm.Close();
+                if (propertiesWindow != null)
+                    propertiesWindow.Close();
                 base.OnFormClosing(e);
-            }
-        }
-
-        private void backToMenuToolStripMenuItem_Click(object sender, EventArgs e)
-        {
-            bool cancelled = false;
-            if (!hasSaved)
-            {
-                var result = MessageBox.Show("There are unsaved changes. Are you sure you want to exit?", "Goopify Prompt", MessageBoxButtons.YesNo);
-                cancelled = result == DialogResult.No;
-            }
-            if (!cancelled)
-            {
-                if (Program.startingForm != null)
-                    Program.startingForm.Show();
-                this.Hide();
-            }
-        }
-
-        private void newMenuItem_Click(object sender, EventArgs e)
-        {
-            bool cancelled = false;
-            if (!hasSaved)
-            {
-                var result = MessageBox.Show("There are unsaved changes. Are you sure you want to exit?", "Goopify Prompt", MessageBoxButtons.YesNo);
-                cancelled = result == DialogResult.No;
-            }
-            if (!cancelled)
-            {
-                OpenFileDialog fileDialog = new OpenFileDialog();
-                fileDialog.Filter = "Collision File (*.col)|*.col";
-                fileDialog.InitialDirectory = Properties.Settings.Default.loadColDialogueRestore;
-                if (fileDialog.ShowDialog() == DialogResult.OK) // If the Ok button is hit
-                {
-                    // Save the directory for next time
-                    Properties.Settings.Default.loadColDialogueRestore = Path.GetDirectoryName(fileDialog.FileName);
-                    Properties.Settings.Default.Save();
-                    // Open and setup the window
-                    this.Hide();
-                    EditorWindow editorWindow = new EditorWindow();
-                    editorWindow.Show();
-
-                    editorWindow.NewGoopMap(fileDialog.FileName);
-                }
-            }
-        }
-
-        private void openMenuItem_Click(object sender, EventArgs e)
-        {
-            bool cancelled = false;
-            if (!hasSaved)
-            {
-                var result = MessageBox.Show("There are unsaved changes. Are you sure you want to exit?", "Goopify Prompt", MessageBoxButtons.YesNo);
-                cancelled = result == DialogResult.No;
-            }
-            if (!cancelled)
-            {
-                OpenFileDialog fileDialog = new OpenFileDialog();
-                fileDialog.Filter = "GoopMap File (*.goo)|*.goo";
-                fileDialog.InitialDirectory = Properties.Settings.Default.loadGoopDialogueRestore;
-                if (fileDialog.ShowDialog() == DialogResult.OK) // If the Ok button is hit
-                {
-                    // Save the directory for next time
-                    Properties.Settings.Default.loadGoopDialogueRestore = Path.GetDirectoryName(fileDialog.FileName);
-                    Properties.Settings.Default.Save();
-                    // Open and setup the window
-                    this.Hide();
-                    EditorWindow editorWindow = new EditorWindow();
-                    editorWindow.Show();
-
-                    editorWindow.LoadGoopMap(fileDialog.FileName);
-                }
             }
         }
 
@@ -266,7 +196,7 @@ namespace Goopify
 
         // Editable settings
         private bool cameraMoveY = false;
-        private float cameraSpeed = 1;
+        private float cameraSpeed { get { return Properties.Settings.Default.cameraSpeed; } }
 
         private const float regionHeightIfOrthographic = 100000;
 
@@ -313,18 +243,38 @@ namespace Goopify
         public enum PollutionLayerType { Normal, NormalCopy, WallPlusX, WallMinusX, WallPlusZ, WallMinusZ, Wave}
         private PollutionLayerType newRegionLayerType = PollutionLayerType.Normal;
 
+        public int[] waveLayerAllowed = new int[0];
+
         public enum Corner { TopLeft, TopRight, BottomRight, BottomLeft }
 
-        private PollutionLayerType[] supportedLayerTypes = new PollutionLayerType[] { PollutionLayerType.Normal, PollutionLayerType.NormalCopy };
+        private PollutionLayerType[] supportedLayerTypes = new PollutionLayerType[] { PollutionLayerType.Normal, PollutionLayerType.NormalCopy, PollutionLayerType.Wave };
 
         private bool editorPosIsCenter = true;
-        private bool lockRegionSizeToPowers = true;
+       
         private bool clampRegionSize = true;
-        private decimal regionMinSize = 1024m;
-        private decimal regionMaxSize = 16384m;
+        private decimal regionMinSize { get { return Properties.Settings.Default.regionMinSize; } }
+        private decimal regionMaxSize { get { return Properties.Settings.Default.regionMaxSize; } }
 
         private string savePath = "";
         private bool hasSaved = true;
+
+        private int undoStepsMax { get { return Properties.Settings.Default.undoSteps; } }
+
+        private bool isDevMode { get { return Properties.Settings.Default.devMode; } }
+
+        // Snap Settings
+        private bool shouldSnapToEdge { get { return Properties.Settings.Default.snapToRegionEdge; } }
+        private bool shouldSnapToCorner { get { return Properties.Settings.Default.snapToRegionCorner; } }
+
+        private bool shouldSnapToPowers { get { return Properties.Settings.Default.snapToPowers; } }
+
+        private bool shouldSnapToGrid { get { return Properties.Settings.Default.snapToGrid; } }
+        private int snapInterval { get { return Properties.Settings.Default.snapInterval;  } }
+
+        // Model Settings
+        private bool ignoreColTypes { get { return Properties.Settings.Default.ignoreColTypes; } }
+        private int[] colTypesToRemove { get { return Properties.Settings.Default.colTypesToRemove; } }
+        
 
         /// <summary>
         /// Goop information for the "creation" step of the editor
@@ -480,40 +430,9 @@ namespace Goopify
             }
         }
         // Stacks for 
-        private Stack<RegionState> undoStack = new Stack<RegionState>();
-        private Stack<RegionState> redoStack = new Stack<RegionState>();
+        private List<RegionState> undoStack = new List<RegionState>();
+        private List<RegionState> redoStack = new List<RegionState>();
 
-        // Snapping settings (TODO: allow for setting changes for this)
-        public class SnapSettings
-        {
-            public bool snapToRegionEdge = false;
-            public bool snapToRegionCorner = false;
-
-            public bool snapToGrid = true;
-            public int snapInterval = 64;
-
-            public bool resizeRegionToPower = true;
-
-            public SnapSettings() {
-                snapToRegionEdge = Properties.Settings.Default.snapToRegionEdge;
-                snapToRegionCorner = Properties.Settings.Default.snapToRegionCorner;
-
-                snapToGrid = Properties.Settings.Default.snapToGrid;
-                snapInterval = Properties.Settings.Default.snapInterval;
-            }
-
-            public void SettingsChanged()
-            {
-                Properties.Settings.Default.snapToRegionEdge = snapToRegionEdge;
-                Properties.Settings.Default.snapToRegionCorner = snapToRegionCorner;
-
-                Properties.Settings.Default.snapToGrid = snapToGrid;
-                Properties.Settings.Default.snapInterval = snapInterval;
-
-                Properties.Settings.Default.Save();
-            }
-        }
-        public SnapSettings snapSettings = new SnapSettings();
         public float snapRange = 2048f;
 
         public Vector3[] storedCorners = new Vector3[8];
@@ -522,11 +441,11 @@ namespace Goopify
         {
             Vector3 modifiedPoint = worldPoint;
             // Grid snapping
-            if (snapSettings.snapToGrid) {
+            if (shouldSnapToGrid) {
                 modifiedPoint = new Vector3(RoundToInterval(worldPoint.X), RoundToInterval(worldPoint.Y), RoundToInterval(worldPoint.Z));
             }
             // Snap to corner/edge only if moving one region
-            if(selectedRegions.Count == 1 && (snapSettings.snapToRegionCorner || snapSettings.snapToRegionEdge)) {
+            if(selectedRegions.Count == 1 && (shouldSnapToCorner || shouldSnapToEdge)) {
                 Vector3? edgeSnapPos = null;
                 float edgeMinDist = snapRange;
                 Vector3? cornerSnapPos = null;
@@ -535,7 +454,7 @@ namespace Goopify
                     if(i == selectedRegions[0]) { continue; } // Don't check if can snap to self
 
                     // Snap to corner logic
-                    if (snapSettings.snapToRegionCorner) { 
+                    if (shouldSnapToCorner) { 
                         // Check distance between each corner of selected and current region
                         for(int x = 0; x < 4; x++) {
                             for(int y = 0; y < 4; y++) {
@@ -555,8 +474,8 @@ namespace Goopify
                         }
                     }
 
-                    // Snap to edge logic
-                    if (snapSettings.snapToRegionEdge) { 
+                    // TODO: Snap to edge logic
+                    if (shouldSnapToEdge) { 
 
                     }
                 }
@@ -569,7 +488,7 @@ namespace Goopify
 
         public float RoundToInterval(float i)
         {
-            return ((float)Math.Round(i / snapSettings.snapInterval)) * snapSettings.snapInterval;
+            return ((float)Math.Round(i / snapInterval)) * snapInterval;
         }
 
         // Rounds to the closest value that is a power of 2, ex. 1023 would output 1024
@@ -592,16 +511,6 @@ namespace Goopify
             return new Vector3(ca * v.X - sa * v.Z, v.Y, sa * v.X + ca * v.Z);
         }
 
-        // Displays the snap settings window when the menuStripItem is clicked
-        private SnapSettingsSubform snapSettingsForm;
-        private void snapSettingsToolStripMenuItem_Click(object sender, EventArgs e)
-        {
-            if(snapSettingsForm == null) {
-                snapSettingsForm = new SnapSettingsSubform(this);
-            }
-            snapSettingsForm.Show();
-        }
-
         public static void CheckForGlError()
         {
             ErrorCode error = GL.GetError();
@@ -612,33 +521,54 @@ namespace Goopify
         }
 
         // Main functions
-        public EditorWindow()
+        string loadingString = "";
+        public EditorWindow(string instantLoad = "")
         {
-            undoStack.Push(new RegionState()); // Push empty goop region to stack to start
-            
-            InitializeComponent();
-            this.StartPosition = FormStartPosition.Manual;
-            if(Program.startingForm != null)
-                this.Location = Program.startingForm.Location;
+            loadingString = instantLoad;
+            try
+            {
+                undoStack.Add(new RegionState()); // Push empty goop region to stack to start
 
-            // Timer event for 
-            UpdateTimer.Interval = 16; // 60 fps
-            UpdateTimer.Elapsed += UpdateTimer_Triggered;
+                InitializeComponent();
+                this.StartPosition = FormStartPosition.Manual;
+                if (Program.startingForm != null)
+                    this.Location = Program.startingForm.Location;
 
-            UpdateRegionInfoArea();
+                // Timer event for 
+                UpdateTimer.Interval = 16; // 60 fps
+                UpdateTimer.Elapsed += UpdateTimer_Triggered;
 
-            paintingPanel.Visible = false;
+                UpdateRegionInfoArea();
 
-            regionTypeComboBox.SelectedIndex = 0;
-            pollutionTypeComboBox.SelectedIndex = 2;
+                paintingPanel.Visible = false;
 
-            // Update the pollution dropdown options when the folder is updated
-            FileSystemWatcher watcher = new FileSystemWatcher(GoopResources.GetResourcesFolderPath());
-            watcher.Created += ResourceFolderChanged;
-            watcher.Changed += ResourceFolderChanged;
-            watcher.Deleted += ResourceFolderChanged;
-            watcher.Renamed += ResourceFolderChanged;
-            watcher.EnableRaisingEvents = true;
+                regionTypeComboBox.SelectedIndex = 0;
+                pollutionTypeComboBox.SelectedIndex = 2;
+                pixelHeight.Visible = isDevMode;
+
+                // Update the pollution dropdown options when the folder is updated
+                FileSystemWatcher watcher = new FileSystemWatcher(GoopResources.GetResourcesFolderPath());
+                watcher.Created += ResourceFolderChanged;
+                watcher.Changed += ResourceFolderChanged;
+                watcher.Deleted += ResourceFolderChanged;
+                watcher.Renamed += ResourceFolderChanged;
+                watcher.EnableRaisingEvents = true;
+            } catch(Exception e)
+            {
+                MessageBox.Show(e.Message + ": " + e.Source + ", " + e.StackTrace);
+            }
+        }
+
+        private void EditorWindow_Load(object sender, EventArgs e)
+        {
+            if(loadingString != "") {
+                if (Path.GetExtension(loadingString) == ".goo") {
+                    LoadGoopMap(loadingString);
+                } 
+                if(Path.GetExtension(loadingString) == ".col") {
+                    NewGoopMap(loadingString);
+                }
+            }
         }
 
         public void ResourceFolderChanged(object Sender, FileSystemEventArgs e)
@@ -1347,7 +1277,7 @@ namespace Goopify
                 currentClickType = GoopRegionClick.Null;
                 glControl1.Refresh();
                 // Save Pollution drawing
-                if(paintedOnVisuals.Length > 0 && paintedOnVisuals.Any(x => x == true)) {
+                if(paintedOnVisuals != null && paintedOnVisuals.Length > 0 && paintedOnVisuals.Any(x => x == true)) {
                     SavePaint(true);
                     UpdateVisualRegionInfoArea();
                 }
@@ -1357,12 +1287,14 @@ namespace Goopify
         
         private void UpdateRegionBoxHeights()
         {
+            int[] ignoreLayers = ignoreColTypes ? colTypesToRemove : null;
             foreach (GoopRegionBox region in goopCutRegions)
             {
+                int[] curIgnoreLayers = ignoreLayers != null && region.layerType == PollutionLayerType.Wave ? ignoreLayers.Except(waveLayerAllowed).ToArray() : ignoreLayers;
                 if (region.autoHeight)
                 {
                     float lowestPoint = mapCol.ReturnLowestVertHeight(region.startPos.X, region.startPos.X + region.width,
-                        region.startPos.Z, region.startPos.Z + region.length, Properties.Settings.Default.colTypesToRemove);
+                        region.startPos.Z, region.startPos.Z + region.length, curIgnoreLayers);
                     region.height = lowestPoint != float.MaxValue ? lowestPoint + autoHeightOffset : 0;
                 }
             }
@@ -1529,7 +1461,7 @@ namespace Goopify
                     case Corner.TopLeft:
                         widthDifference = resizeGoopBoxReference.startPos.X - mouseWorldPos.X - selectedRegionOffset[0].X;
                         lengthDifference = resizeGoopBoxReference.startPos.Z - mouseWorldPos.Z - selectedRegionOffset[0].Z;
-                        if (snapSettings.resizeRegionToPower)
+                        if (shouldSnapToPowers)
                         { // Rounds to power of 2s since that's the sizes all the ingame regions use
                             widthDifference = RoundToNearestPower(Math.Abs(resizeGoopBoxReference.width + widthDifference)) - resizeGoopBoxReference.width;
                             lengthDifference = RoundToNearestPower(Math.Abs(resizeGoopBoxReference.length + lengthDifference)) - resizeGoopBoxReference.length;
@@ -1542,7 +1474,7 @@ namespace Goopify
                     case Corner.TopRight:
                         widthDifference = resizeGoopBoxReference.startPos.X - mouseWorldPos.X - selectedRegionOffset[0].X - resizeGoopBoxReference.width;
                         lengthDifference = resizeGoopBoxReference.startPos.Z - mouseWorldPos.Z - selectedRegionOffset[0].Z;
-                        if (snapSettings.resizeRegionToPower)
+                        if (shouldSnapToPowers)
                         { // Rounds to power of 2s since that's the sizes all the ingame regions use
                             widthDifference = Math.Sign(widthDifference) * RoundToNearestPower(Math.Abs(widthDifference));
                             lengthDifference = RoundToNearestPower(Math.Abs(resizeGoopBoxReference.length + lengthDifference)) - resizeGoopBoxReference.length;
@@ -1554,7 +1486,7 @@ namespace Goopify
                     case Corner.BottomRight:
                         widthDifference = resizeGoopBoxReference.startPos.X - mouseWorldPos.X - selectedRegionOffset[0].X - resizeGoopBoxReference.width;
                         lengthDifference = resizeGoopBoxReference.startPos.Z - mouseWorldPos.Z - selectedRegionOffset[0].Z - resizeGoopBoxReference.length;
-                        if (snapSettings.resizeRegionToPower)
+                        if (shouldSnapToPowers)
                         { // Rounds to power of 2s since that's the sizes all the ingame regions use
                             widthDifference = Math.Sign(widthDifference) * RoundToNearestPower(Math.Abs(widthDifference));
                             lengthDifference = Math.Sign(lengthDifference) * RoundToNearestPower(Math.Abs(lengthDifference));
@@ -1565,7 +1497,7 @@ namespace Goopify
                     case Corner.BottomLeft:
                         widthDifference = resizeGoopBoxReference.startPos.X - mouseWorldPos.X - selectedRegionOffset[0].X;
                         lengthDifference = resizeGoopBoxReference.startPos.Z - mouseWorldPos.Z - selectedRegionOffset[0].Z - resizeGoopBoxReference.length;
-                        if (snapSettings.resizeRegionToPower)
+                        if (shouldSnapToPowers)
                         { // Rounds to power of 2s since that's the sizes all the ingame regions use
                             widthDifference = RoundToNearestPower(Math.Abs(resizeGoopBoxReference.width + widthDifference)) - resizeGoopBoxReference.width;
                             lengthDifference = Math.Sign(lengthDifference) * RoundToNearestPower(Math.Abs(lengthDifference));
@@ -1774,8 +1706,8 @@ namespace Goopify
             UpdateWindowTitle();
 
             // Update the undos so we can't reset our changes
-            undoStack.Pop();
-            undoStack.Push(new RegionState(goopCutRegions, selectedRegions));
+            undoStack.RemoveAt(undoStack.Count - 1);
+            undoStack.Add(new RegionState(goopCutRegions, selectedRegions));
         }
 
         /// <summary>
@@ -2112,7 +2044,7 @@ namespace Goopify
                 }
                 regionWidth.Value = (decimal)goopCutRegions[lastIndex].width;
                 regionLength.Value = (decimal)goopCutRegions[lastIndex].length;
-                if(lockRegionSizeToPowers) {
+                if(shouldSnapToPowers) {
                     regionWidth.Increment = (decimal)Math.Abs(goopCutRegions[lastIndex].width);
                     regionLength.Increment = (decimal)Math.Abs(goopCutRegions[lastIndex].length);
                 }
@@ -2336,8 +2268,9 @@ namespace Goopify
                 return;
             }
             Console.WriteLine("UNDOING ACTION");
-            redoStack.Push(undoStack.Pop()); // Add last action we did to the redo
-            RegionState stateToUndoTo = new RegionState(undoStack.Peek());
+            redoStack.Add(undoStack[undoStack.Count - 1]); // Add last action we did to the redo
+            undoStack.RemoveAt(undoStack.Count - 1);
+            RegionState stateToUndoTo = new RegionState(undoStack[undoStack.Count - 1]);
 
             if(stateToUndoTo.currentRegions.Length > 0)
             {
@@ -2358,8 +2291,9 @@ namespace Goopify
                 return;
             }
             Console.WriteLine("REDOING ACTION");
-            undoStack.Push(redoStack.Pop()); // Add last action we did to the undo
-            RegionState stateToUndoTo = new RegionState(undoStack.Peek());
+            undoStack.Add(redoStack[redoStack.Count - 1]); // Add last action we did to the undo
+            redoStack.RemoveAt(redoStack.Count - 1);
+            RegionState stateToUndoTo = new RegionState(undoStack[undoStack.Count - 1]);
             goopCutRegions = new List<GoopRegionBox>(stateToUndoTo.currentRegions);
             selectedRegions = new List<int>(stateToUndoTo.selectedRegions);
             SyncListBoxToRegions();
@@ -2370,14 +2304,18 @@ namespace Goopify
         {
             // Don't save action if we didn't make any changes
             RegionState newState = new RegionState(goopCutRegions, selectedRegions);
-            if (newState.Equals(undoStack.Peek()))
+            if (newState.Equals(undoStack[undoStack.Count - 1]))
             {
                 return;
             }
             // Can't redo anymore
             redoStack.Clear();
             Console.WriteLine("SAVING ACTION");
-            undoStack.Push(newState);
+            undoStack.Add(newState);
+            if (undoStack.Count > undoStepsMax + 1)
+            {
+                undoStack.RemoveAt(0);
+            }
 
             hasSaved = false;
             UpdateWindowTitle();
@@ -2521,7 +2459,7 @@ namespace Goopify
             {
                 for (int i = 0; i < selectedRegions.Count; i++)
                 {
-                    if (lockRegionSizeToPowers) {
+                    if (shouldSnapToPowers) {
                         regionWidth.Value = (decimal)RoundToNearestPower((float)regionWidth.Value);
                     }
                     if(clampRegionSize) { regionWidth.Value = Clamp(regionMinSize, regionMaxSize, regionWidth.Value); }
@@ -2537,7 +2475,7 @@ namespace Goopify
             {
                 for (int i = 0; i < selectedRegions.Count; i++)
                 {
-                    if(lockRegionSizeToPowers) {
+                    if(shouldSnapToPowers) {
                         regionWidth.Value = (decimal)RoundToNearestPower((float)regionWidth.Value);
                     }
                     if(clampRegionSize) { regionWidth.Value = Clamp(regionMinSize, regionMaxSize, regionWidth.Value); }
@@ -2554,7 +2492,7 @@ namespace Goopify
             {
                 for (int i = 0; i < selectedRegions.Count; i++)
                 {
-                    if(lockRegionSizeToPowers) {
+                    if(shouldSnapToPowers) {
                         regionLength.Value = (decimal)RoundToNearestPower((float)regionLength.Value);
                     }
                     if(clampRegionSize) { regionLength.Value = Clamp(regionMinSize, regionMaxSize, regionLength.Value); }
@@ -2570,7 +2508,7 @@ namespace Goopify
             {
                 for (int i = 0; i < selectedRegions.Count; i++)
                 {
-                    if(lockRegionSizeToPowers) {
+                    if(shouldSnapToPowers) {
                         regionLength.Value = (decimal)RoundToNearestPower((float)regionLength.Value);
                     }
                     if(clampRegionSize) { regionLength.Value = Clamp(regionMinSize, regionMaxSize, regionLength.Value); }
@@ -2749,7 +2687,7 @@ namespace Goopify
                     pollutionRegion.pointYPos = lowestPoint != float.MaxValue ? lowestPoint : 0;
                 }*/
                 // Offset the model height at the end so the goop affects the ground but the model doesn't overlap
-                pollutionModel.OffsetAllVerts(new Vector3(0, 7, 0));
+                pollutionModel.OffsetAllVerts(new Vector3(0, Properties.Settings.Default.regionFloorOffset, 0));
                 // Set the default goop texture to be our default goop
                 ChangeVisual(visualType);
             }
@@ -3011,7 +2949,7 @@ namespace Goopify
                 }
             }
             paintUndoList.Add(savedImages);
-            if (paintUndoList.Count > Properties.Settings.Default.paintUndoSize + 1) {
+            if (paintUndoList.Count > undoStepsMax + 1) {
                 UndoPaintRemoveAt(0);
             }
             RedoPaintClear();
@@ -3152,9 +3090,12 @@ namespace Goopify
             long prevMiliseconds = 0;
             Stopwatch stopWatch = new Stopwatch();
             stopWatch.Start();
+            int[] ignoreLayers = ignoreColTypes ? colTypesToRemove : null;
             for (int i = 0; i < goopCutRegions.Count; i++)
             {
                 GoopRegionBox regionBox = goopCutRegions[i];
+                int[] curIgnoreLayers = ignoreLayers != null && regionBox.layerType == PollutionLayerType.Wave ? ignoreLayers.Except(waveLayerAllowed).ToArray() : ignoreLayers;
+
                 // Generates the model
                 Col regionModel = mapCol.SplitModelByLine(regionBox.GetCornerPos(Corner.TopLeft), regionBox.GetCornerPos(Corner.TopRight));
                 AddToProgress(progressRegionSize * 0.2f);
@@ -3164,7 +3105,7 @@ namespace Goopify
                 AddToProgress(progressRegionSize * 0.175f);
                 regionModel = regionModel.SplitModelByLine(regionBox.GetCornerPos(Corner.BottomLeft), regionBox.GetCornerPos(Corner.TopLeft));
                 AddToProgress(progressRegionSize * 0.15f);
-                regionModel.CleanupModelForGoop(Properties.Settings.Default.colTypesToRemove, regionBox.height);
+                regionModel.CleanupModelForGoop(curIgnoreLayers, regionBox.height);
                 regionModel.SetUVsByProjection(regionBox.GetCornerPos(Corner.BottomLeft), regionBox.width, regionBox.length);
                 Console.WriteLine("Time for region {1} cut in milliseconds: {0}", stopWatch.ElapsedMilliseconds - prevMiliseconds, i);
                 prevMiliseconds = stopWatch.ElapsedMilliseconds;
@@ -3298,11 +3239,6 @@ namespace Goopify
                 glControl1.Refresh();
             }
         }*/
-
-        private void githubRepoToolStripMenuItem_Click(object sender, EventArgs e)
-        {
-            System.Diagnostics.Process.Start("https://github.com/Halleester/Goopify");
-        }
 
         private bool HasNeededResources()
         {
@@ -3560,12 +3496,12 @@ namespace Goopify
         private void UpdateVisualComboBox()
         {
             visualConfigComboBox.Items.Clear();
-            if(Directory.Exists(Directory.GetCurrentDirectory() + GoopResources.resourcePath))
+            if(Directory.Exists(AppDomain.CurrentDomain.BaseDirectory + GoopResources.resourcePath))
             {
-                string[] files = Directory.GetDirectories(Directory.GetCurrentDirectory() + GoopResources.resourcePath);
+                string[] files = Directory.GetDirectories(AppDomain.CurrentDomain.BaseDirectory + GoopResources.resourcePath);
                 foreach(string file in files)
                 {
-                    string nameString = file.Replace(Directory.GetCurrentDirectory() + GoopResources.resourcePath + "\\", "");
+                    string nameString = file.Replace(AppDomain.CurrentDomain.BaseDirectory + GoopResources.resourcePath + "\\", "");
                     visualConfigComboBox.Items.Add(nameString);
                 }
             }
@@ -3653,13 +3589,6 @@ namespace Goopify
             }
         }
 
-        private void propertiesToolStripMenuItem_Click(object sender, EventArgs e)
-        {
-            // Open the 
-            PropertiesSubform editorWindow = new PropertiesSubform();
-            editorWindow.Show();
-        }
-
         private void brushSizeTextBox_KeyDown(object sender, KeyEventArgs e)
         {
             if (e.KeyCode == Keys.Enter) {
@@ -3711,6 +3640,66 @@ namespace Goopify
             glControl1.Invalidate();
         }
 
+        #region TOOLSTRIP
+
+        // File Section
+
+        private void newMenuItem_Click(object sender, EventArgs e)
+        {
+            bool cancelled = false;
+            if (!hasSaved)
+            {
+                var result = MessageBox.Show("There are unsaved changes. Are you sure you want to exit?", "Goopify Prompt", MessageBoxButtons.YesNo);
+                cancelled = result == DialogResult.No;
+            }
+            if (!cancelled)
+            {
+                OpenFileDialog fileDialog = new OpenFileDialog();
+                fileDialog.Filter = "Collision File (*.col)|*.col";
+                fileDialog.InitialDirectory = Properties.Settings.Default.loadColDialogueRestore;
+                if (fileDialog.ShowDialog() == DialogResult.OK) // If the Ok button is hit
+                {
+                    // Save the directory for next time
+                    Properties.Settings.Default.loadColDialogueRestore = Path.GetDirectoryName(fileDialog.FileName);
+                    Properties.Settings.Default.Save();
+                    // Open and setup the window
+                    this.Hide();
+                    EditorWindow editorWindow = new EditorWindow();
+                    editorWindow.Show();
+
+                    editorWindow.NewGoopMap(fileDialog.FileName);
+                }
+            }
+        }
+
+        private void openMenuItem_Click(object sender, EventArgs e)
+        {
+            bool cancelled = false;
+            if (!hasSaved)
+            {
+                var result = MessageBox.Show("There are unsaved changes. Are you sure you want to exit?", "Goopify Prompt", MessageBoxButtons.YesNo);
+                cancelled = result == DialogResult.No;
+            }
+            if (!cancelled)
+            {
+                OpenFileDialog fileDialog = new OpenFileDialog();
+                fileDialog.Filter = "GoopMap File (*.goo)|*.goo";
+                fileDialog.InitialDirectory = Properties.Settings.Default.loadGoopDialogueRestore;
+                if (fileDialog.ShowDialog() == DialogResult.OK) // If the Ok button is hit
+                {
+                    // Save the directory for next time
+                    Properties.Settings.Default.loadGoopDialogueRestore = Path.GetDirectoryName(fileDialog.FileName);
+                    Properties.Settings.Default.Save();
+                    // Open and setup the window
+                    this.Hide();
+                    EditorWindow editorWindow = new EditorWindow();
+                    editorWindow.Show();
+
+                    editorWindow.LoadGoopMap(fileDialog.FileName);
+                }
+            }
+        }
+
         private void saveMenuItem_Click(object sender, EventArgs e)
         {
             SaveGoopMap(savePath);
@@ -3720,5 +3709,52 @@ namespace Goopify
         {
             SaveGoopMap();
         }
+
+        private void backToMenuToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            bool cancelled = false;
+            if (!hasSaved)
+            {
+                var result = MessageBox.Show("There are unsaved changes. Are you sure you want to exit?", "Goopify Prompt", MessageBoxButtons.YesNo);
+                cancelled = result == DialogResult.No;
+            }
+            if (!cancelled)
+            {
+                if (Program.startingForm == null) { Program.startingForm = new StartingWindow(); }
+                Program.startingForm.Show();
+                this.Hide();
+            }
+        }
+
+        private PropertiesSubform propertiesWindow = null;
+        private void propertiesToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            if(propertiesWindow == null) {
+                propertiesWindow = new PropertiesSubform();
+            }
+            propertiesWindow.Show();
+            propertiesWindow.FormClosed += PropertiesWindow_FormClosed;
+        }
+
+        private void PropertiesWindow_FormClosed(object sender, FormClosedEventArgs e)
+        {
+            propertiesWindow = null;
+            pixelHeight.Visible = isDevMode;
+        }
+
+        // Help Section
+        private GuideSubform guideWindow = null;
+        private void guideToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            System.Diagnostics.Process.Start("https://github.com/Halleester/Goopify/blob/main/README.md");
+        }
+
+        private void githubRepoToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            System.Diagnostics.Process.Start("https://github.com/Halleester/Goopify");
+        }
+
+        #endregion
+
     }
 }
